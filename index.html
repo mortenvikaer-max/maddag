@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mit opskriftsværktøj – hvad kan jeg lave med…?</title>
+  <style>
+    :root {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+      line-height: 1.5;
+      color: #111827;
+      background: #f3f4f6;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top left, #e5e7eb, #f9fafb);
+    }
+
+    .page {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 24px 16px 48px;
+    }
+
+    header {
+      margin-bottom: 24px;
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .subtitle {
+      color: #4b5563;
+      margin-bottom: 1rem;
+      max-width: 40rem;
+    }
+
+    .status {
+      font-size: 0.9rem;
+      color: #6b7280;
+      margin-bottom: 0.5rem;
+    }
+
+    .status--error {
+      color: #b91c1c;
+    }
+
+    .card {
+      background: #ffffffcc;
+      backdrop-filter: blur(8px);
+      border-radius: 16px;
+      padding: 16px 16px 20px;
+      box-shadow: 0 14px 30px rgba(15, 23, 42, 0.12);
+      margin-bottom: 24px;
+      border: 1px solid #e5e7eb;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .hint {
+      font-size: 0.85rem;
+      color: #6b7280;
+      margin-bottom: 8px;
+    }
+
+    .input-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    input[type="text"] {
+      flex: 1 1 200px;
+      padding: 10px 12px;
+      font-size: 0.95rem;
+      border-radius: 999px;
+      border: 1px solid #d1d5db;
+      box-sizing: border-box;
+      background: #f9fafb;
+    }
+
+    input[type="text"]:focus {
+      outline: none;
+      border-color: #111827;
+      box-shadow: 0 0 0 2px rgba(17, 24, 39, 0.18);
+      background: #ffffff;
+    }
+
+    button {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 9px 16px;
+      font-size: 0.9rem;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      background: #111827;
+      color: #fff;
+      white-space: nowrap;
+      transition: transform 0.05s ease-out, box-shadow 0.05s ease-out,
+        background 0.12s ease-in;
+      box-shadow: 0 6px 16px rgba(15, 23, 42, 0.35);
+    }
+
+    button:hover {
+      background: #020617;
+      transform: translateY(-1px);
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.45);
+    }
+
+    button:active {
+      transform: translateY(0);
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.25);
+    }
+
+    .button--ghost {
+      background: #e5e7eb;
+      color: #111827;
+      box-shadow: none;
+    }
+
+    .button--ghost:hover {
+      background: #d1d5db;
+      box-shadow: none;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 8px;
+      min-height: 24px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: #e5e7eb;
+      font-size: 0.8rem;
+      color: #111827;
+    }
+
+    .chip span {
+      text-transform: lowercase;
+    }
+
+    .chip-remove {
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      font-size: 0.85rem;
+      line-height: 1;
+      padding: 0;
+      color: #4b5563;
+    }
+
+    .filters-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      margin-top: 6px;
+    }
+
+    .filters-row label {
+      margin-bottom: 0;
+      font-weight: 500;
+      font-size: 0.8rem;
+      color: #4b5563;
+    }
+
+    select {
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid #d1d5db;
+      font-size: 0.85rem;
+      background: #f9fafb;
+      color: #111827;
+    }
+
+    .results-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 10px;
+      gap: 8px;
+    }
+
+    .results-header h2 {
+      margin: 0;
+      font-size: 1.1rem;
+    }
+
+    .results-count {
+      font-size: 0.85rem;
+      color: #6b7280;
+    }
+
+    .results {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 14px;
+    }
+
+    @media (min-width: 800px) {
+      .results {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    .recipe-card {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 14px 14px 16px;
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.12);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      border: 1px solid #e5e7eb;
+    }
+
+    .recipe-title {
+      font-weight: 600;
+      margin: 0 0 2px;
+      font-size: 1rem;
+    }
+
+    .recipe-meta {
+      font-size: 0.8rem;
+      color: #4b5563;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      background: #f3f4f6;
+      color: #374151;
+    }
+
+    .pill--accent {
+      background: #eef2ff;
+      color: #312e81;
+    }
+
+    .pill--effort-super {
+      background: #dcfce7;
+      color: #14532d;
+    }
+
+    .pill--effort-hverdag {
+      background: #e0f2fe;
+      color: #0b4f71;
+    }
+
+    .pill--effort-weekend {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 2px;
+    }
+
+    .tag {
+      font-size: 0.7rem;
+      padding: 1px 7px;
+      border-radius: 999px;
+      background: #f3f4f6;
+      color: #4b5563;
+    }
+
+    .recipe-section-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin: 6px 0 2px;
+      color: #374151;
+    }
+
+    .recipe-ingredients {
+      font-size: 0.8rem;
+      margin: 0;
+      padding-left: 16px;
+    }
+
+    .recipe-ingredients li {
+      margin-bottom: 1px;
+    }
+
+    .recipe-instructions {
+      font-size: 0.8rem;
+      margin: 0;
+      padding-left: 16px;
+    }
+
+    .recipe-instructions li {
+      margin-bottom: 3px;
+    }
+
+    .no-results {
+      font-size: 0.9rem;
+      color: #6b7280;
+      margin-top: 8px;
+    }
+
+    footer {
+      margin-top: 32px;
+      font-size: 0.75rem;
+      color: #9ca3af;
+      text-align: center;
+    }
+
+    .small {
+      font-size: 0.78rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>Hvad kan jeg lave med…?</h1>
+      <p class="subtitle">
+        Skriv de ingredienser du har, og få forslag til retter fra din egen
+        opskriftsdatabase.
+      </p>
+      <div id="loadStatus" class="status">Indlæser opskrifter…</div>
+    </header>
+
+    <section class="card">
+      <label for="ingredientInput">Tilføj ingrediens</label>
+      <p class="hint">
+        Skriv én ingrediens ad gangen (fx <em>kartofler</em>, <em>laks</em>,
+        <em>gulerødder</em>) og tryk “Tilføj”. Søgningen matcher på
+        <code>ingredientKeywords</code> i din <code>recipes.json</code>.
+      </p>
+
+      <div class="input-row">
+        <input
+          type="text"
+          id="ingredientInput"
+          placeholder="fx kartofler"
+          autocomplete="off"
+        />
+        <button id="addIngredientButton" type="button">➕ Tilføj</button>
+        <button id="clearIngredientsButton" type="button" class="button--ghost">
+          Nulstil ingredienser
+        </button>
+      </div>
+
+      <div id="chipsContainer" class="chips"></div>
+
+      <div class="filters-row">
+        <label for="minMatches">Mindst antal matchende ingredienser:</label>
+        <select id="minMatches">
+          <option value="1">1+</option>
+          <option value="2">2+</option>
+          <option value="3">3+</option>
+          <option value="4">4+</option>
+        </select>
+
+        <button id="searchButton" type="button">🔍 Find opskrifter</button>
+        <span class="small" id="ingredientInfo"></span>
+      </div>
+    </section>
+
+    <section>
+      <div class="results-header">
+        <h2>Forslag</h2>
+        <span class="results-count" id="resultsCount"></span>
+      </div>
+      <div id="results" class="results"></div>
+      <p id="noResults" class="no-results" style="display: none">
+        Ingen opskrifter matchede med de nuværende kriterier. Prøv med færre
+        ingredienser eller lavere antal krævede matches 🙂
+      </p>
+    </section>
+
+    <footer>
+      Privat opskriftsværktøj. Data kommer fra <code>recipes.json</code> i
+      samme mappe.
+    </footer>
+  </div>
+
+  <script>
+    let allRecipes = [];
+    let recipesLoaded = false;
+    let selectedIngredients = [];
+
+    function normalize(text) {
+      return text
+        .toString()
+        .trim()
+        .toLowerCase()
+        .replace(/\s+/g, " ");
+    }
+
+    function effortClass(effort) {
+      if (!effort) return "";
+      const e = effort.toLowerCase();
+      if (e.includes("super")) return "pill--effort-super";
+      if (e.includes("hverdag")) return "pill--effort-hverdag";
+      if (e.includes("weekend")) return "pill--effort-weekend";
+      return "";
+    }
+
+    function renderIngredientChips() {
+      const container = document.getElementById("chipsContainer");
+      const info = document.getElementById("ingredientInfo");
+      container.innerHTML = "";
+
+      if (selectedIngredients.length === 0) {
+        const hint = document.createElement("span");
+        hint.className = "hint";
+        hint.textContent = "Ingen ingredienser tilføjet endnu.";
+        container.appendChild(hint);
+        info.textContent = "";
+        return;
+      }
+
+      selectedIngredients.forEach((ing) => {
+        const chip = document.createElement("div");
+        chip.className = "chip";
+
+        const label = document.createElement("span");
+        label.textContent = ing;
+
+        const removeBtn = document.createElement("button");
+        removeBtn.className = "chip-remove";
+        removeBtn.type = "button";
+        removeBtn.textContent = "✕";
+        removeBtn.addEventListener("click", () => {
+          selectedIngredients = selectedIngredients.filter((i) => i !== ing);
+          renderIngredientChips();
+          searchRecipes();
+        });
+
+        chip.appendChild(label);
+        chip.appendChild(removeBtn);
+        container.appendChild(chip);
+      });
+
+      info.textContent =
+        selectedIngredients.length === 1
+          ? "1 ingrediens valgt"
+          : selectedIngredients.length + " ingredienser valgt";
+    }
+
+    function addIngredient() {
+      const input = document.getElementById("ingredientInput");
+      const raw = normalize(input.value);
+      if (!raw) return;
+      if (selectedIngredients.includes(raw)) {
+        input.value = "";
+        return;
+      }
+      selectedIngredients.push(raw);
+      input.value = "";
+      renderIngredientChips();
+      searchRecipes();
+    }
+
+    function clearIngredients() {
+      selectedIngredients = [];
+      renderIngredientChips();
+      renderResults([]);
+    }
+
+    function matchCountForRecipe(recipe, ingredients) {
+      const keywords = (recipe.ingredientKeywords || []).map((k) =>
+        normalize(k)
+      );
+      if (!keywords.length) return 0;
+      let count = 0;
+      ingredients.forEach((userIng) => {
+        const matched = keywords.some(
+          (kw) => kw.includes(userIng) || userIng.includes(kw)
+        );
+        if (matched) count++;
+      });
+      return count;
+    }
+
+    function searchRecipes() {
+      const resultsContainer = document.getElementById("results");
+      const noResultsEl = document.getElementById("noResults");
+      const resultsCount = document.getElementById("resultsCount");
+
+      if (!recipesLoaded) {
+        resultsContainer.innerHTML = "";
+        resultsCount.textContent = "";
+        noResultsEl.style.display = "none";
+        return;
+      }
+
+      if (selectedIngredients.length === 0) {
+        // Ingen ingredienser valgt => ingen resultater (kan ændres senere hvis du vil vise alle som standard)
+        resultsContainer.innerHTML = "";
+        resultsCount.textContent = "";
+        noResultsEl.style.display = "none";
+        return;
+      }
+
+      const minMatches =
+        parseInt(document.getElementById("minMatches").value, 10) || 1;
+
+      const matches = allRecipes
+        .map((recipe) => {
+          const matchCount = matchCountForRecipe(
+            recipe,
+            selectedIngredients
+          );
+          return { recipe, matchCount };
+        })
+        .filter((entry) => entry.matchCount >= minMatches)
+        .sort((a, b) => b.matchCount - a.matchCount);
+
+      const onlyRecipes = matches.map((m) => ({
+        ...m.recipe,
+        _matchCount: m.matchCount,
+      }));
+
+      renderResults(onlyRecipes);
+    }
+
+    function renderResults(recipes) {
+      const resultsContainer = document.getElementById("results");
+      const noResultsEl = document.getElementById("noResults");
+      const resultsCount = document.getElementById("resultsCount");
+
+      resultsContainer.innerHTML = "";
+      noResultsEl.style.display = "none";
+      resultsCount.textContent = "";
+
+      if (!recipes || recipes.length === 0) {
+        if (selectedIngredients.length > 0) {
+          noResultsEl.style.display = "block";
+          resultsCount.textContent = "0 resultater";
+        }
+        return;
+      }
+
+      resultsCount.textContent =
+        recipes.length === 1
+          ? "1 resultat"
+          : recipes.length + " resultater";
+
+      recipes.forEach((recipe) => {
+        const card = document.createElement("article");
+        card.className = "recipe-card";
+
+        const title = document.createElement("h3");
+        title.className = "recipe-title";
+        title.textContent = recipe.title || "(uden titel)";
+
+        const meta = document.createElement("div");
+        meta.className = "recipe-meta";
+
+        const prep = recipe.prepTime || "";
+        const cook = recipe.cookTime || "";
+        const total = recipe.time || "";
+
+        const pills = [];
+
+        if (prep) pills.push(`🧂 Forberedelse: ${prep}`);
+        if (cook) pills.push(`🔥 Tilberedning: ${cook}`);
+        if (!prep && !cook && total) pills.push(`⏱ Tid: ${total}`);
+        else if (total) pills.push(`⏱ I alt: ${total}`);
+
+        const diff = recipe.difficulty || "";
+        const effort = recipe.effort || "";
+        const servings =
+          typeof recipe.servings === "number"
+            ? recipe.servings + " pers."
+            : recipe.servings;
+
+        const matchCount =
+          typeof recipe._matchCount === "number"
+            ? recipe._matchCount
+            : null;
+
+        const pillContainer = document.createElement("div");
+        pillContainer.className = "recipe-meta";
+
+        pills.forEach((p) => {
+          const span = document.createElement("span");
+          span.className = "pill pill--accent";
+          span.textContent = p;
+          pillContainer.appendChild(span);
+        });
+
+        if (diff) {
+          const span = document.createElement("span");
+          span.className = "pill";
+          span.textContent = "👩‍🍳 " + diff;
+          pillContainer.appendChild(span);
+        }
+
+        if (effort) {
+          const span = document.createElement("span");
+          span.className = "pill " + effortClass(effort);
+          span.textContent = effort;
+          pillContainer.appendChild(span);
+        }
+
+        if (servings) {
+          const span = document.createElement("span");
+          span.className = "pill";
+          span.textContent = "🍽 " + servings;
+          pillContainer.appendChild(span);
+        }
+
+        if (matchCount !== null) {
+          const span = document.createElement("span");
+          span.className = "pill";
+          span.textContent =
+            "🔎 " +
+            matchCount +
+            (matchCount === 1 ? " match" : " matches");
+          pillContainer.appendChild(span);
+        }
+
+        const tagsEl = document.createElement("div");
+        tagsEl.className = "tags";
+        (recipe.tags || []).forEach((tag) => {
+          const span = document.createElement("span");
+          span.className = "tag";
+          span.textContent = tag;
+          tagsEl.appendChild(span);
+        });
+
+        const ingredientsTitle = document.createElement("div");
+        ingredientsTitle.className = "recipe-section-title";
+        ingredientsTitle.textContent = "Ingredienser";
+
+        const ingredientsList = document.createElement("ul");
+        ingredientsList.className = "recipe-ingredients";
+        (recipe.ingredients || []).forEach((ing) => {
+          const li = document.createElement("li");
+          const amount = ing.amount ? ing.amount + " " : "";
+          li.textContent = amount + ing.name;
+          ingredientsList.appendChild(li);
+        });
+
+        const instructionsTitle = document.createElement("div");
+        instructionsTitle.className = "recipe-section-title";
+        instructionsTitle.textContent = "Fremgangsmåde";
+
+        const instructionsList = document.createElement("ol");
+        instructionsList.className = "recipe-instructions";
+        (recipe.instructions || []).forEach((step) => {
+          const li = document.createElement("li");
+          li.textContent = step;
+          instructionsList.appendChild(li);
+        });
+
+        card.appendChild(title);
+        card.appendChild(pillContainer);
+        if ((recipe.tags || []).length > 0) {
+          card.appendChild(tagsEl);
+        }
+        card.appendChild(ingredientsTitle);
+        card.appendChild(ingredientsList);
+        card.appendChild(instructionsTitle);
+        card.appendChild(instructionsList);
+
+        if (recipe.notes) {
+          const notesTitle = document.createElement("div");
+          notesTitle.className = "recipe-section-title";
+          notesTitle.textContent = "Noter";
+          const notesP = document.createElement("p");
+          notesP.className = "small";
+          notesP.textContent = recipe.notes;
+          card.appendChild(notesTitle);
+          card.appendChild(notesP);
+        }
+
+        resultsContainer.appendChild(card);
+      });
+    }
+
+    // Indlæs recipes.json
+    (function loadRecipes() {
+      const statusEl = document.getElementById("loadStatus");
+      fetch("recipes.json")
+        .then((res) => {
+          if (!res.ok) {
+            throw new Error(
+              "Kunne ikke hente recipes.json (status " + res.status + ")"
+            );
+          }
+          return res.json();
+        })
+        .then((data) => {
+          if (!Array.isArray(data)) {
+            throw new Error("recipes.json skal være et JSON-array []");
+          }
+          allRecipes = data;
+          recipesLoaded = true;
+          statusEl.textContent =
+            "Indlæste " +
+            allRecipes.length +
+            (allRecipes.length === 1
+              ? " opskrift."
+              : " opskrifter.");
+          statusEl.classList.remove("status--error");
+        })
+        .catch((err) => {
+          console.error(err);
+          recipesLoaded = false;
+          statusEl.textContent =
+            "Fejl ved indlæsning af recipes.json: " + err.message;
+          statusEl.classList.add("status--error");
+        });
+    })();
+
+    // Event listeners
+    document
+      .getElementById("addIngredientButton")
+      .addEventListener("click", addIngredient);
+
+    document
+      .getElementById("ingredientInput")
+      .addEventListener("keydown", function (event) {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          addIngredient();
+        }
+      });
+
+    document
+      .getElementById("clearIngredientsButton")
+      .addEventListener("click", clearIngredients);
+
+    document
+      .getElementById("searchButton")
+      .addEventListener("click", searchRecipes);
+
+    document
+      .getElementById("minMatches")
+      .addEventListener("change", searchRecipes);
+
+    // Første render
+    renderIngredientChips();
+  </script>
+</body>
+</html>
