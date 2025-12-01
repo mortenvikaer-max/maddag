@@ -56,7 +56,7 @@
       padding: 24px 16px 48px;
     }
 
-    /* Status holdes skjult, så du ikke ser "Indlæste X opskrifter" */
+    /* Status holdes skjult */
     .status {
       display: none;
     }
@@ -101,6 +101,7 @@
       background: #ffffff;
     }
 
+    /* Neutrale knapper til Tilføj/Find */
     button {
       display: inline-flex;
       align-items: center;
@@ -108,36 +109,37 @@
       padding: 9px 16px;
       font-size: 0.9rem;
       border-radius: 999px;
-      border: none;
+      border: 1px solid #d1d5db;
       cursor: pointer;
-      background: #ef4444;
-      color: #fff1f2;
+      background: #f9fafb;
+      color: #111827;
       white-space: nowrap;
       transition: transform 0.05s ease-out, box-shadow 0.05s ease-out,
-        background 0.12s ease-in;
-      box-shadow: 0 6px 16px rgba(220, 38, 38, 0.35);
+        background 0.12s ease-in, border-color 0.12s ease-in;
+      box-shadow: 0 3px 10px rgba(15, 23, 42, 0.12);
     }
 
     button:hover {
-      background: #dc2626;
+      background: #e5e7eb;
+      border-color: #9ca3af;
       transform: translateY(-1px);
-      box-shadow: 0 10px 24px rgba(185, 28, 28, 0.5);
+      box-shadow: 0 6px 16px rgba(15, 23, 42, 0.18);
     }
 
     button:active {
       transform: translateY(0);
-      box-shadow: 0 4px 12px rgba(185, 28, 28, 0.28);
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.16);
     }
 
     .button--ghost {
-      background: #fee2e2;
-      color: #b91c1c;
+      background: #f3f4f6;
+      color: #374151;
       box-shadow: none;
-      border: 1px solid #fecaca;
+      border: 1px solid #e5e7eb;
     }
 
     .button--ghost:hover {
-      background: #fecaca;
+      background: #e5e7eb;
       box-shadow: none;
     }
 
@@ -181,22 +183,6 @@
       gap: 8px;
       align-items: center;
       margin-top: 6px;
-    }
-
-    .filters-row label {
-      margin-bottom: 0;
-      font-weight: 500;
-      font-size: 0.8rem;
-      color: #4b5563;
-    }
-
-    select {
-      padding: 6px 10px;
-      border-radius: 999px;
-      border: 1px solid #e5e7eb;
-      font-size: 0.85rem;
-      background: #fef2f2;
-      color: #111827;
     }
 
     .small {
@@ -437,14 +423,6 @@
       <div id="chipsContainer" class="chips"></div>
 
       <div class="filters-row">
-        <label for="minMatches">Mindst antal matchende ingredienser:</label>
-        <select id="minMatches">
-          <option value="1">1+</option>
-          <option value="2">2+</option>
-          <option value="3">3+</option>
-          <option value="4">4+</option>
-        </select>
-
         <button id="searchButton" type="button">🔍 Find opskrifter</button>
         <span class="small" id="ingredientInfo"></span>
       </div>
@@ -457,8 +435,7 @@
       </div>
       <div id="results" class="results"></div>
       <p id="noResults" class="no-results" style="display: none">
-        Ingen opskrifter matchede med de nuværende kriterier. Prøv med færre
-        ingredienser eller lavere antal krævede matches 🙂
+        Ingen opskrifter matchede med de nuværende ingredienser 🙂
       </p>
     </section>
 
@@ -611,9 +588,7 @@
         return;
       }
 
-      const minMatches =
-        parseInt(document.getElementById("minMatches").value, 10) || 1;
-
+      // KUN opskrifter der matcher alle valgte ingredienser
       const matches = allRecipes
         .map((recipe) => {
           const matchCount = matchCountForRecipe(
@@ -622,7 +597,9 @@
           );
           return { recipe, matchCount };
         })
-        .filter((entry) => entry.matchCount >= minMatches)
+        .filter(
+          (entry) => entry.matchCount === selectedIngredients.length
+        )
         .sort((a, b) => b.matchCount - a.matchCount);
 
       const onlyRecipes = matches.map((m) => ({
@@ -960,10 +937,6 @@
     document
       .getElementById("searchButton")
       .addEventListener("click", searchRecipes);
-
-    document
-      .getElementById("minMatches")
-      .addEventListener("change", searchRecipes);
 
     // Luk forslag når man klikker udenfor
     document.addEventListener("click", (e) => {
