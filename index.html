@@ -185,6 +185,21 @@
       margin-top: 6px;
     }
 
+    .filters-row label.inline {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-weight: 400;
+      font-size: 0.78rem;
+      color: #4b5563;
+      margin-bottom: 0;
+    }
+
+    .filters-row input[type="checkbox"] {
+      accent-color: #ef4444;
+      cursor: pointer;
+    }
+
     .small {
       font-size: 0.78rem;
       color: #6b7280;
@@ -424,6 +439,12 @@
 
       <div class="filters-row">
         <button id="searchButton" type="button">🔍 Find opskrifter</button>
+
+        <label class="inline">
+          <input type="checkbox" id="allowOneMissing" />
+          Tillad 1 manglende ingrediens
+        </label>
+
         <span class="small" id="ingredientInfo"></span>
       </div>
     </section>
@@ -588,7 +609,13 @@
         return;
       }
 
-      // KUN opskrifter der matcher alle valgte ingredienser
+      const allowOneMissing =
+        document.getElementById("allowOneMissing").checked;
+
+      const requiredMatches = allowOneMissing
+        ? Math.max(selectedIngredients.length - 1, 1)
+        : selectedIngredients.length;
+
       const matches = allRecipes
         .map((recipe) => {
           const matchCount = matchCountForRecipe(
@@ -597,9 +624,7 @@
           );
           return { recipe, matchCount };
         })
-        .filter(
-          (entry) => entry.matchCount === selectedIngredients.length
-        )
+        .filter((entry) => entry.matchCount >= requiredMatches)
         .sort((a, b) => b.matchCount - a.matchCount);
 
       const onlyRecipes = matches.map((m) => ({
@@ -937,6 +962,10 @@
     document
       .getElementById("searchButton")
       .addEventListener("click", searchRecipes);
+
+    document
+      .getElementById("allowOneMissing")
+      .addEventListener("change", searchRecipes);
 
     // Luk forslag når man klikker udenfor
     document.addEventListener("click", (e) => {
