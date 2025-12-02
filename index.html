@@ -15,7 +15,7 @@
     body {
       margin: 0;
       padding: 0;
-      background: #fef2f2;
+      background: #fee2e2; /* mere rød */
       color: #111827;
     }
 
@@ -29,10 +29,10 @@
       border-radius: 50%;
       background: radial-gradient(
         circle at center,
-        rgba(254, 202, 202, 0.7),
-        rgba(254, 202, 202, 0)
+        rgba(254, 202, 202, 0.85),
+        rgba(248, 113, 113, 0)
       );
-      opacity: 0.7;
+      opacity: 0.9;
       filter: blur(2px);
       pointer-events: none;
       z-index: 0;
@@ -62,13 +62,13 @@
     }
 
     .card {
-      background: #fff7f7;
+      background: #fef2f2;
       backdrop-filter: blur(8px);
       border-radius: 18px;
       padding: 16px 16px 20px;
       box-shadow: 0 14px 30px rgba(185, 28, 28, 0.18);
       margin-bottom: 24px;
-      border: 1px solid rgba(254, 202, 202, 0.9);
+      border: 1px solid rgba(248, 113, 113, 0.4);
     }
 
     label {
@@ -91,7 +91,7 @@
       border-radius: 999px;
       border: 1px solid #e5e7eb;
       box-sizing: border-box;
-      background: #fef2f2;
+      background: #fee2e2;
     }
 
     input[type="text"]:focus {
@@ -157,10 +157,10 @@
       gap: 6px;
       padding: 4px 10px;
       border-radius: 999px;
-      background: #fee2e2;
+      background: #fecaca;
       font-size: 0.8rem;
-      color: #b91c1c;
-      border: 1px solid #fecaca;
+      color: #7f1d1d;
+      border: 1px solid #f97373;
     }
 
     .chip span {
@@ -174,7 +174,7 @@
       font-size: 0.85rem;
       line-height: 1;
       padding: 0;
-      color: #9f1239;
+      color: #7f1d1d;
     }
 
     .filters-row {
@@ -254,24 +254,32 @@
     }
 
     .recipe-card {
-      background: #fff7f7;
+      background: #fef2f2;
       border-radius: 18px;
       padding: 10px 12px 10px;
       box-shadow: 0 10px 24px rgba(185, 28, 28, 0.22);
-      border: 1px solid rgba(254, 202, 202, 0.95);
+      border: 1px solid rgba(248, 113, 113, 0.7);
     }
 
     .recipe-card[open] {
       box-shadow: 0 14px 30px rgba(185, 28, 28, 0.3);
     }
 
+    /* summary som grid: titel | tidsboks | pil → tidsbokse i samme kolonne */
     .recipe-card summary {
       list-style: none;
       cursor: pointer;
-      display: flex;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 170px auto;
+      column-gap: 16px;
       align-items: flex-start;
-      justify-content: space-between;
-      gap: 16px;
+    }
+
+    @media (max-width: 640px) {
+      .recipe-card summary {
+        grid-template-columns: minmax(0, 1fr);
+        row-gap: 8px;
+      }
     }
 
     .recipe-card summary::-webkit-details-marker {
@@ -294,13 +302,13 @@
     }
 
     .time-block {
-      background: #fee2e2;
+      background: #fecaca;
       border-radius: 12px;
       padding: 6px 10px;
       font-size: 0.75rem;
       color: #7f1d1d;
-      min-width: 150px;
-      border: 1px solid #fecaca;
+      width: 170px;            /* fast bredde → lige kolonne */
+      border: 1px solid #f97373;
     }
 
     .time-line {
@@ -323,7 +331,7 @@
     }
 
     .summary-arrow {
-      margin-left: 10px;
+      margin-left: 4px;
       font-size: 0.8rem;
       color: #9ca3af;
       align-self: center;
@@ -378,22 +386,29 @@
       color: #374151;
     }
 
-    .recipe-ingredients {
-      font-size: 0.8rem;
-      margin: 0;
-      padding-left: 16px;
+    /* To kolonner: ingredienser (venstre) / fremgangsmåde (højre) */
+    .recipe-columns {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 16px;
+      align-items: flex-start;
+      margin-top: 4px;
     }
 
-    .recipe-ingredients li {
-      margin-bottom: 1px;
+    @media (max-width: 800px) {
+      .recipe-columns {
+        grid-template-columns: minmax(0, 1fr);
+      }
     }
 
+    .recipe-ingredients,
     .recipe-instructions {
       font-size: 0.8rem;
       margin: 0;
       padding-left: 16px;
     }
 
+    .recipe-ingredients li,
     .recipe-instructions li {
       margin-bottom: 3px;
     }
@@ -402,13 +417,6 @@
       font-size: 0.9rem;
       color: #6b7280;
       margin-top: 8px;
-    }
-
-    footer {
-      margin-top: 32px;
-      font-size: 0.75rem;
-      color: #9ca3af;
-      text-align: center;
     }
   </style>
 </head>
@@ -459,10 +467,6 @@
         Ingen opskrifter matchede med de nuværende ingredienser 🙂
       </p>
     </section>
-
-    <footer>
-      Privat opskriftsværktøj. Data kommer fra <code>recipes.json</code>.
-    </footer>
   </div>
 
   <script>
@@ -555,6 +559,7 @@
       const suggestionsEl = document.getElementById("suggestions");
       const firstSuggestion = suggestionsEl.querySelector(".suggestion-item");
 
+      // Hvis der er forslag, vælg det første ved Enter/Tilføj
       if (firstSuggestion) {
         const norm = firstSuggestion.dataset.norm;
         addIngredientFromNormalized(norm);
@@ -584,6 +589,7 @@
       ingredients.forEach((userIng) => {
         const matched = keywords.some(
           (kw) => kw.includes(userIng) || userIng.includes(kw)
+          // fx userIng = "kylling" matcher kw = "kyllingebryst"
         );
         if (matched) count++;
       });
@@ -799,14 +805,21 @@
         servingsRow.appendChild(selectLabel);
         body.appendChild(servingsRow);
 
+        /* TO KOLONNER: ingredienser (venstre) / fremgangsmåde (højre) */
+        const columns = document.createElement("div");
+        columns.className = "recipe-columns";
+
+        const leftCol = document.createElement("div");
+        const rightCol = document.createElement("div");
+
         const ingredientsTitle = document.createElement("div");
         ingredientsTitle.className = "recipe-section-title";
         ingredientsTitle.textContent = "Ingredienser";
-        body.appendChild(ingredientsTitle);
+        leftCol.appendChild(ingredientsTitle);
 
         const ingredientsList = document.createElement("ul");
         ingredientsList.className = "recipe-ingredients";
-        body.appendChild(ingredientsList);
+        leftCol.appendChild(ingredientsList);
 
         function updateIngredientsList() {
           ingredientsList.innerHTML = "";
@@ -834,7 +847,7 @@
         const instructionsTitle = document.createElement("div");
         instructionsTitle.className = "recipe-section-title";
         instructionsTitle.textContent = "Fremgangsmåde";
-        body.appendChild(instructionsTitle);
+        rightCol.appendChild(instructionsTitle);
 
         const instructionsList = document.createElement("ol");
         instructionsList.className = "recipe-instructions";
@@ -843,7 +856,11 @@
           li.textContent = step;
           instructionsList.appendChild(li);
         });
-        body.appendChild(instructionsList);
+        rightCol.appendChild(instructionsList);
+
+        columns.appendChild(leftCol);
+        columns.appendChild(rightCol);
+        body.appendChild(columns);
 
         if (recipe.notes) {
           const notesTitle = document.createElement("div");
