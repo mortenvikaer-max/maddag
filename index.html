@@ -1301,29 +1301,33 @@
     }
 
     /* random "Har du prøvet...?" */
-    function renderRandomSuggestion() {
-      const container = document.getElementById("randomSuggestion");
-      if (!recipesLoaded || !allRecipes.length || selectedIngredients.length > 0) {
-        container.innerHTML = "";
-        container.style.display = "none";
-        return;
-      }
+function renderRandomSuggestion() {
+  const container = document.getElementById("randomSuggestion");
+  if (!recipesLoaded || !allRecipes.length || selectedIngredients.length > 0) {
+    container.innerHTML = "";
+    container.style.display = "none";
+    return;
+  }
 
-      container.style.display = "block";
-      container.innerHTML = "";
+  container.style.display = "block";
+  container.innerHTML = "";
 
-      const randomIndex = Math.floor(Math.random() * allRecipes.length);
-      const randomRecipe = allRecipes[randomIndex];
+  const randomIndex = Math.floor(Math.random() * allRecipes.length);
+  const randomRecipe = allRecipes[randomIndex];
 
-      const label = document.createElement("div");
-      label.className = "random-label";
-      label.textContent = "Har du prøvet...?";
+  const label = document.createElement("div");
+  label.className = "random-label";
+  label.textContent = "Har du prøvet...?";
 
-      const card = createRecipeCard(randomRecipe);
+  const card = createRecipeCard(randomRecipe);
 
-      container.appendChild(label);
-      container.appendChild(card);
-    }
+  // 🔽 Denne linje gør, at kortet altid er åbent fra start
+  card.open = true;
+
+  container.appendChild(label);
+  container.appendChild(card);
+}
+
 
     function renderResults(recipes) {
       const resultsContainer = document.getElementById("results");
