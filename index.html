@@ -6,46 +6,60 @@
   <title>Opskriftsværktøj</title>
   <style>
     :root {
+      --red-main: #c8102e;      /* Politiken-agtig rød */
+      --red-dark: #8f071f;
+      --red-soft: #fbeaec;      /* lys men ikke lyserød/pastel */
+      --red-border: #a50d26;
+      --bg-main: #f3f4f6;       /* lys grå baggrund */
+      --ink: #111827;
+
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
         sans-serif;
       line-height: 1.5;
-      color: #111827;
+      color: var(--ink);
     }
 
     body {
       margin: 0;
       padding: 0;
-      background: #fee2e2; /* mere rød */
-      color: #111827;
+      background: var(--bg-main);
+      color: var(--ink);
     }
 
-    /* Bløde, matte cirkler i siderne (rødlig) */
+    /* Bløde cirkler: rød i venstre side, mørk i højre side */
     body::before,
     body::after {
       content: "";
       position: fixed;
-      width: 360px;
-      height: 360px;
+      width: 380px;
+      height: 380px;
       border-radius: 50%;
-      background: radial-gradient(
-        circle at center,
-        rgba(254, 202, 202, 0.85),
-        rgba(248, 113, 113, 0)
-      );
-      opacity: 0.9;
-      filter: blur(2px);
       pointer-events: none;
       z-index: 0;
+      filter: blur(2px);
+      mix-blend-mode: multiply;
     }
 
     body::before {
       top: -80px;
-      left: -60px;
+      left: -80px;
+      background: radial-gradient(
+        circle at center,
+        rgba(200, 16, 46, 0.55),
+        rgba(200, 16, 46, 0)
+      );
+      opacity: 0.9;
     }
 
     body::after {
       bottom: -80px;
-      right: -60px;
+      right: -80px;
+      background: radial-gradient(
+        circle at center,
+        rgba(15, 23, 42, 0.55),
+        rgba(15, 23, 42, 0)
+      );
+      opacity: 0.9;
     }
 
     .page {
@@ -62,19 +76,26 @@
     }
 
     .card {
-      background: #fef2f2;
+      background: #ffffff;
       backdrop-filter: blur(8px);
       border-radius: 18px;
       padding: 16px 16px 20px;
-      box-shadow: 0 14px 30px rgba(185, 28, 28, 0.18);
+      box-shadow: 0 14px 30px rgba(15, 23, 42, 0.25);
       margin-bottom: 24px;
-      border: 1px solid rgba(248, 113, 113, 0.4);
+      border-left: 4px solid var(--red-main);
+      border-top: 1px solid rgba(15, 23, 42, 0.08);
+      border-right: 1px solid rgba(15, 23, 42, 0.08);
+      border-bottom: 1px solid rgba(15, 23, 42, 0.08);
     }
 
     label {
       display: block;
       font-weight: 600;
       margin-bottom: 6px;
+      letter-spacing: 0.01em;
+      text-transform: uppercase;
+      font-size: 0.8rem;
+      color: #374151;
     }
 
     .input-row {
@@ -89,15 +110,15 @@
       padding: 10px 12px;
       font-size: 0.95rem;
       border-radius: 999px;
-      border: 1px solid #e5e7eb;
+      border: 1px solid #d1d5db;
       box-sizing: border-box;
-      background: #fee2e2;
+      background: #ffffff;
     }
 
     input[type="text"]:focus {
       outline: none;
-      border-color: #b91c1c;
-      box-shadow: 0 0 0 2px rgba(248, 113, 113, 0.45);
+      border-color: var(--red-main);
+      box-shadow: 0 0 0 2px rgba(200, 16, 46, 0.35);
       background: #ffffff;
     }
 
@@ -111,8 +132,8 @@
       border-radius: 999px;
       border: 1px solid #d1d5db;
       cursor: pointer;
-      background: #f9fafb;
-      color: #111827;
+      background: #ffffff;
+      color: var(--ink);
       white-space: nowrap;
       transition: transform 0.05s ease-out, box-shadow 0.05s ease-out,
         background 0.12s ease-in, border-color 0.12s ease-in;
@@ -120,7 +141,7 @@
     }
 
     button:hover {
-      background: #e5e7eb;
+      background: #f3f4f6;
       border-color: #9ca3af;
       transform: translateY(-1px);
       box-shadow: 0 6px 16px rgba(15, 23, 42, 0.18);
@@ -135,7 +156,7 @@
       background: #f3f4f6;
       color: #374151;
       box-shadow: none;
-      border: 1px solid #e5e7eb;
+      border: 1px solid #d1d5db;
     }
 
     .button--ghost:hover {
@@ -157,10 +178,10 @@
       gap: 6px;
       padding: 4px 10px;
       border-radius: 999px;
-      background: #fecaca;
+      background: var(--red-soft);
       font-size: 0.8rem;
-      color: #7f1d1d;
-      border: 1px solid #f97373;
+      color: var(--red-dark);
+      border: 1px solid var(--red-main);
     }
 
     .chip span {
@@ -174,7 +195,7 @@
       font-size: 0.85rem;
       line-height: 1;
       padding: 0;
-      color: #7f1d1d;
+      color: var(--red-dark);
     }
 
     .filters-row {
@@ -196,7 +217,7 @@
     }
 
     .filters-row input[type="checkbox"] {
-      accent-color: #ef4444;
+      accent-color: var(--red-main);
       cursor: pointer;
     }
 
@@ -212,8 +233,8 @@
       max-width: 260px;
       background: #ffffff;
       border-radius: 12px;
-      border: 1px solid #fecaca;
-      box-shadow: 0 8px 18px rgba(248, 113, 113, 0.22);
+      border: 1px solid var(--red-border);
+      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.25);
       display: none;
       overflow: hidden;
       font-size: 0.8rem;
@@ -222,11 +243,11 @@
     .suggestion-item {
       padding: 6px 10px;
       cursor: pointer;
-      color: #7f1d1d;
+      color: var(--red-dark);
     }
 
     .suggestion-item:hover {
-      background: #fee2e2;
+      background: var(--red-soft);
     }
 
     .results-header {
@@ -240,6 +261,9 @@
     .results-header h2 {
       margin: 0;
       font-size: 1.1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #111827;
     }
 
     .results-count {
@@ -254,15 +278,18 @@
     }
 
     .recipe-card {
-      background: #fef2f2;
+      background: #ffffff;
       border-radius: 18px;
       padding: 10px 12px 10px;
-      box-shadow: 0 10px 24px rgba(185, 28, 28, 0.22);
-      border: 1px solid rgba(248, 113, 113, 0.7);
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.25);
+      border-left: 4px solid var(--red-main);
+      border-top: 1px solid rgba(15, 23, 42, 0.06);
+      border-right: 1px solid rgba(15, 23, 42, 0.06);
+      border-bottom: 1px solid rgba(15, 23, 42, 0.06);
     }
 
     .recipe-card[open] {
-      box-shadow: 0 14px 30px rgba(185, 28, 28, 0.3);
+      box-shadow: 0 16px 36px rgba(15, 23, 42, 0.3);
     }
 
     /* summary som grid: titel | tidsboks | pil → tidsbokse i samme kolonne */
@@ -291,9 +318,10 @@
     }
 
     .recipe-title {
-      font-weight: 600;
+      font-weight: 700;
       margin: 0 0 2px;
       font-size: 1rem;
+      text-transform: none;
     }
 
     .recipe-summary-sub {
@@ -302,13 +330,13 @@
     }
 
     .time-block {
-      background: #fecaca;
+      background: var(--red-soft);
       border-radius: 12px;
       padding: 6px 10px;
       font-size: 0.75rem;
-      color: #7f1d1d;
+      color: var(--red-dark);
       width: 170px;            /* fast bredde → lige kolonne */
-      border: 1px solid #f97373;
+      border: 1px solid var(--red-main);
     }
 
     .time-line {
@@ -323,7 +351,7 @@
     }
 
     .time-label {
-      font-weight: 500;
+      font-weight: 600;
     }
 
     .time-value {
@@ -333,16 +361,16 @@
     .summary-arrow {
       margin-left: 4px;
       font-size: 0.8rem;
-      color: #9ca3af;
+      color: #6b7280;
       align-self: center;
     }
 
     .recipe-body {
       margin-top: 8px;
       padding-top: 8px;
-      border-top: 1px solid #fecaca;
+      border-top: 1px solid #e5e7eb;
       font-size: 0.8rem;
-      color: #374151;
+      color: #111827;
     }
 
     .tags {
@@ -356,8 +384,8 @@
       font-size: 0.7rem;
       padding: 1px 7px;
       border-radius: 999px;
-      background: #f3f4f6;
-      color: #4b5563;
+      background: #e5e7eb;
+      color: #374151;
     }
 
     .servings-row {
@@ -381,9 +409,11 @@
 
     .recipe-section-title {
       font-size: 0.8rem;
-      font-weight: 600;
+      font-weight: 700;
       margin: 6px 0 2px;
-      color: #374151;
+      color: #111827;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
     }
 
     /* To kolonner: ingredienser (venstre) / fremgangsmåde (højre) */
