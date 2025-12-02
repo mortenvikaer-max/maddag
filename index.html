@@ -2,1361 +2,1030 @@
 <html lang="da">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Opskriftsværktøj</title>
+  <title>MADDAG – privat opskriftsværktøj</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
-      --red-main: #c8102e;      /* Politiken-agtig rød */
-      --red-dark: #8f071f;
-      --red-soft: #fbeaec;      /* lys rødlig, men ikke pastel-lyserød */
-      --bg-main: #f3f4f6;       /* lys grå baggrund */
-      --ink: #111827;
+      --bg-red: #b30000;
+      --bg-red-soft: #f7e5e5;
+      --card-bg: #ffffff;
+      --card-border: #e3c7c7;
+      --accent-red: #d00000;
+      --accent-red-soft: #fbe9e9;
+      --accent-navy: #0b1c3b;
+      --accent-navy-soft: #192845;
+      --text-main: #111111;
+      --text-muted: #555555;
+      --chip-bg: #f0f0f5;
+      --chip-border: #d0d3dd;
+      --shadow-soft: 0 18px 45px rgba(0, 0, 0, 0.16);
+      --radius-xl: 22px;
+      --radius-lg: 18px;
+      --radius-pill: 999px;
+    }
 
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-        sans-serif;
-      line-height: 1.5;
-      color: var(--ink);
+    * {
+      box-sizing: border-box;
     }
 
     body {
       margin: 0;
-      padding: 0;
-      background: var(--bg-main);
-      color: var(--ink);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text-main);
+      background: radial-gradient(circle at top, #ffe5e5 0, #f7d2d2 22%, #f1c1c1 33%, #f7e5e5 46%, #f8f8fb 76%);
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
     }
 
-    /* Dekorative bobler i baggrunden */
+    /* Dekorative bobler – masser af variation */
     .bg-bubbles {
       position: fixed;
-      inset: 0;
+      inset: -200px -120px;
       pointer-events: none;
       z-index: 0;
       overflow: hidden;
     }
 
-    /* grund-stil for alle bobler */
-    .bubble {
+    .bg-bubbles span {
       position: absolute;
       border-radius: 50%;
-      mix-blend-mode: multiply;
       filter: blur(1px);
-    }
-
-    /* store røde / mørke hjørne-bobler */
-    .bubble--1 {
-      width: 460px;
-      height: 460px;
-      top: -140px;
-      left: -160px;
-      background: radial-gradient(circle at center,
-        rgba(200, 16, 46, 0.8),
-        rgba(200, 16, 46, 0));
-      opacity: 0.8; /* 80 % */
-    }
-
-    .bubble--2 {
-      width: 420px;
-      height: 420px;
-      bottom: -160px;
-      right: -160px;
-      background: radial-gradient(circle at center,
-        rgba(15, 23, 42, 0.8),
-        rgba(15, 23, 42, 0));
-      opacity: 0.8; /* 80 % */
-    }
-
-    /* mellemstore langs siderne */
-    .bubble--3 {
-      width: 280px;
-      height: 280px;
-      top: 12%;
-      left: -70px;
-      background: radial-gradient(circle at center,
-        rgba(30, 64, 175, 0.7),
-        rgba(30, 64, 175, 0));
-      opacity: 0.65;
-    }
-
-    .bubble--4 {
-      width: 260px;
-      height: 260px;
-      top: 60%;
-      left: -40px;
-      background: radial-gradient(circle at center,
-        rgba(148, 163, 184, 0.7),
-        rgba(148, 163, 184, 0));
-      opacity: 0.6;
-    }
-
-    .bubble--5 {
-      width: 280px;
-      height: 280px;
-      top: 8%;
-      right: -60px;
-      background: radial-gradient(circle at center,
-        rgba(200, 16, 46, 0.7),
-        rgba(200, 16, 46, 0));
-      opacity: 0.65;
-    }
-
-    .bubble--6 {
-      width: 260px;
-      height: 260px;
-      bottom: 20%;
-      right: 2%;
-      background: radial-gradient(circle at center,
-        rgba(31, 41, 55, 0.7),
-        rgba(31, 41, 55, 0));
-      opacity: 0.6;
-    }
-
-    /* mindre dekorative bobler rundt omkring (blandet opacitet) */
-    .bubble--7 {
-      width: 170px;
-      height: 170px;
-      top: 30%;
-      right: 30%;
-      background: radial-gradient(circle at center,
-        rgba(148, 163, 184, 0.6),
-        rgba(148, 163, 184, 0));
-      opacity: 0.5;
-    }
-
-    .bubble--8 {
-      width: 150px;
-      height: 150px;
-      bottom: 32%;
-      left: 34%;
-      background: radial-gradient(circle at center,
-        rgba(30, 64, 175, 0.7),
-        rgba(30, 64, 175, 0));
-      opacity: 0.55;
-    }
-
-    .bubble--9 {
-      width: 120px;
-      height: 120px;
-      top: 9%;
-      left: 44%;
-      background: radial-gradient(circle at center,
-        rgba(15, 23, 42, 0.7),
-        rgba(15, 23, 42, 0));
-      opacity: 0.4;
-    }
-
-    .bubble--10 {
-      width: 130px;
-      height: 130px;
-      bottom: 10%;
-      right: 44%;
-      background: radial-gradient(circle at center,
-        rgba(200, 16, 46, 0.7),
-        rgba(200, 16, 46, 0));
-      opacity: 0.45;
-    }
-
-    .bubble--11 {
-      width: 110px;
-      height: 110px;
-      top: 52%;
-      right: 10%;
-      background: radial-gradient(circle at center,
-        rgba(148, 163, 184, 0.9),
-        rgba(148, 163, 184, 0));
-      opacity: 0.35;
-    }
-
-    .bubble--12 {
-      width: 90px;
-      height: 90px;
-      top: 22%;
-      left: 16%;
-      background: radial-gradient(circle at center,
-        rgba(15, 23, 42, 0.8),
-        rgba(15, 23, 42, 0));
-      opacity: 0.5;
-    }
-
-    /* ekstra små/lette bobler med lav opacitet */
-    .bubble--13 {
-      width: 120px;
-      height: 120px;
-      top: 40%;
-      left: 28%;
-      background: radial-gradient(circle at center,
-        rgba(200, 16, 46, 0.4),
-        rgba(200, 16, 46, 0));
-      opacity: 0.25;
-    }
-
-    .bubble--14 {
-      width: 100px;
-      height: 100px;
-      bottom: 18%;
-      left: 18%;
-      background: radial-gradient(circle at center,
-        rgba(30, 64, 175, 0.4),
-        rgba(30, 64, 175, 0));
-      opacity: 0.2;
-    }
-
-    .bubble--15 {
-      width: 140px;
-      height: 140px;
-      top: 70%;
-      right: 26%;
-      background: radial-gradient(circle at center,
-        rgba(148, 163, 184, 0.4),
-        rgba(148, 163, 184, 0));
-      opacity: 0.2;
-    }
-
-    .bubble--16 {
-      width: 90px;
-      height: 90px;
-      top: 5%;
-      right: 22%;
-      background: radial-gradient(circle at center,
-        rgba(15, 23, 42, 0.35),
-        rgba(15, 23, 42, 0));
       opacity: 0.18;
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.9), transparent 60%);
+      mix-blend-mode: multiply;
     }
 
-    .bubble--17 {
-      width: 80px;
-      height: 80px;
-      bottom: 6%;
-      left: 50%;
-      background: radial-gradient(circle at center,
-        rgba(200, 16, 46, 0.3),
-        rgba(200, 16, 46, 0));
-      opacity: 0.18;
-    }
+    /* Røde bobler */
+    .bg-bubbles span.b1 { width: 280px; height: 280px; background: radial-gradient(circle, rgba(179,0,0,0.85), transparent 65%); top: -40px; left: -80px; opacity: 0.45; }
+    .bg-bubbles span.b2 { width: 220px; height: 220px; background: radial-gradient(circle, rgba(208,0,0,0.75), transparent 70%); top: 40%; left: -60px; opacity: 0.35; }
+    .bg-bubbles span.b3 { width: 260px; height: 260px; background: radial-gradient(circle, rgba(179,0,0,0.55), transparent 68%); bottom: -80px; right: -40px; opacity: 0.4; }
 
-    /* “næsten ingen opacitet” – kun en anelse farve */
-    .bubble--18 {
-      width: 150px;
-      height: 150px;
-      top: 45%;
-      right: 50%;
-      background: radial-gradient(circle at center,
-        rgba(148, 163, 184, 0.25),
-        rgba(148, 163, 184, 0));
-      opacity: 0.12;
-    }
+    /* Navy-blå bobler */
+    .bg-bubbles span.b4 { width: 320px; height: 320px; background: radial-gradient(circle, rgba(11,28,59,0.85), transparent 68%); top: -120px; right: 10%; opacity: 0.35; }
+    .bg-bubbles span.b5 { width: 190px; height: 190px; background: radial-gradient(circle, rgba(25,40,69,0.6), transparent 70%); top: 55%; right: 15%; opacity: 0.5; }
+    .bg-bubbles span.b6 { width: 140px; height: 140px; background: radial-gradient(circle, rgba(25,40,69,0.3), transparent 70%); bottom: 10%; left: 20%; opacity: 0.7; }
 
-    .bubble--19 {
-      width: 130px;
-      height: 130px;
-      top: 35%;
-      right: 5%;
-      background: radial-gradient(circle at center,
-        rgba(30, 64, 175, 0.25),
-        rgba(30, 64, 175, 0));
-      opacity: 0.1;
-    }
+    /* Grå & transparente bobler i forskellige opaciteter */
+    .bg-bubbles span.b7 { width: 260px; height: 260px; background: radial-gradient(circle, rgba(0,0,0,0.18), transparent 70%); top: 15%; left: 55%; opacity: 0.2; }
+    .bg-bubbles span.b8 { width: 110px; height: 110px; background: radial-gradient(circle, rgba(255,255,255,0.08), transparent 60%); top: 70%; left: 65%; opacity: 0.8; border: 1px solid rgba(0,0,0,0.08); }
+    .bg-bubbles span.b9 { width: 90px; height: 90px; background: radial-gradient(circle, rgba(0,0,0,0.05), transparent 70%); top: 25%; right: 30%; opacity: 0.25; border: 1px solid rgba(0,0,0,0.06); }
+    .bg-bubbles span.b10 { width: 180px; height: 180px; background: radial-gradient(circle, rgba(255,255,255,0.0), transparent 80%); border: 1px solid rgba(0,0,0,0.06); top: 60%; left: 5%; opacity: 0.4; }
+    .bg-bubbles span.b11 { width: 130px; height: 130px; background: radial-gradient(circle, rgba(0,0,0,0.12), transparent 80%); bottom: 5%; right: 35%; opacity: 0.6; }
+    .bg-bubbles span.b12 { width: 210px; height: 210px; background: radial-gradient(circle, rgba(25,40,69,0.15), transparent 80%); top: 35%; left: 35%; opacity: 0.3; }
 
-    .bubble--20 {
-      width: 160px;
-      height: 160px;
-      bottom: 40%;
-      left: 52%;
-      background: radial-gradient(circle at center,
-        rgba(15, 23, 42, 0.2),
-        rgba(15, 23, 42, 0));
-      opacity: 0.08;
-    }
-
-    /* Mindre “støj” på telefonen */
-    @media (max-width: 768px) {
-      .bubble {
-        opacity: 0.2 !important;
-        filter: blur(0.5px);
-      }
-
-      /* skjul de to store hjørne-bobler på mobil */
-      .bubble--1,
-      .bubble--2 {
-        display: none;
-      }
-    }
-
-    .page {
+    /* NAVY banner */
+    .top-banner {
       position: relative;
-      z-index: 1;
-      max-width: 1000px;
+      z-index: 2;
+      background: var(--accent-navy);
+      padding: 18px 16px;
+      box-shadow: 0 10px 26px rgba(0,0,0,0.3);
+    }
+
+    .top-banner-title {
+      max-width: 1100px;
       margin: 0 auto;
-      padding: 24px 16px 48px;
-    }
-
-    /* Status holdes skjult */
-    .status {
-      display: none;
-    }
-
-    .card {
-      background: #ffffff;
-      backdrop-filter: blur(8px);
-      border-radius: 18px;
-      padding: 16px 16px 20px;
-      box-shadow: 0 14px 30px rgba(15, 23, 42, 0.25);
-      margin-bottom: 24px;
-      border-left: 4px solid var(--red-main);
-      border-top: 1px solid rgba(15, 23, 42, 0.08);
-      border-right: 1px solid rgba(15, 23, 42, 0.08);
-      border-bottom: 1px solid rgba(15, 23, 42, 0.08);
-    }
-
-    label {
-      display: block;
-      font-weight: 600;
-      margin-bottom: 6px;
-      letter-spacing: 0.01em;
+      text-align: left;
+      color: #ffffff;
+      font-weight: 900;
+      letter-spacing: 0.45em;
+      font-size: 2.2rem;
       text-transform: uppercase;
-      font-size: 0.8rem;
-      color: #374151;
     }
 
-    .input-row {
+    .app-shell {
+      position: relative;
+      z-index: 3;
+      max-width: 1100px;
+      margin: 26px auto 40px;
+      padding: 0 16px 40px;
+    }
+
+    .search-card {
+      background: var(--card-bg);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-soft);
+      padding: 20px 22px 18px;
+      border: 1px solid var(--card-border);
+    }
+
+    .search-header {
       display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 12px;
       flex-wrap: wrap;
-      gap: 8px;
+    }
+
+    .search-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent-navy-soft);
+    }
+
+    .search-main-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
       margin-bottom: 6px;
+      flex-wrap: wrap;
     }
 
-    input[type="text"] {
-      flex: 1 1 200px;
-      padding: 10px 12px;
+    .search-input-wrapper {
+      flex: 1;
+      position: relative;
+    }
+
+    .search-input-wrapper input {
+      width: 100%;
+      border-radius: var(--radius-pill);
+      border: 1px solid #d4d7e2;
+      padding: 10px 16px;
       font-size: 0.95rem;
-      border-radius: 999px;
-      border: 1px solid #d1d5db;
-      box-sizing: border-box;
-      background: #ffffff;
-    }
-
-    input[type="text"]:focus {
       outline: none;
-      border-color: var(--red-main);
-      box-shadow: 0 0 0 2px rgba(200, 16, 46, 0.35);
+      background: #fdfdfd;
+      transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+    }
+
+    .search-input-wrapper input:focus {
+      border-color: var(--accent-red);
+      box-shadow: 0 0 0 2px rgba(179,0,0,0.1);
       background: #ffffff;
     }
 
-    /* Neutrale knapper til Tilføj/Find */
-    button {
+    .btn {
+      border-radius: var(--radius-pill);
+      border: none;
+      padding: 9px 18px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 9px 16px;
-      font-size: 0.9rem;
-      border-radius: 999px;
-      border: 1px solid #d1d5db;
-      cursor: pointer;
-      background: #ffffff;
-      color: var(--ink);
+      transition: background 0.15s, box-shadow 0.15s, transform 0.08s;
       white-space: nowrap;
-      transition: transform 0.05s ease-out, box-shadow 0.05s ease-out,
-        background 0.12s ease-in, border-color 0.12s ease-in;
-      box-shadow: 0 3px 10px rgba(15, 23, 42, 0.12);
     }
 
-    button:hover {
-      background: #f3f4f6;
-      border-color: #9ca3af;
-      transform: translateY(-1px);
-      box-shadow: 0 6px 16px rgba(15, 23, 42, 0.18);
-    }
-
-    button:active {
-      transform: translateY(0);
-      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.16);
-    }
-
-    .button--ghost {
-      background: #f3f4f6;
-      color: #374151;
-      box-shadow: none;
-      border: 1px solid #d1d5db;
-    }
-
-    .button--ghost:hover {
-      background: #e5e7eb;
+    .btn:active {
+      transform: translateY(1px);
       box-shadow: none;
     }
 
-    .chips {
+    .btn-primary {
+      background: var(--accent-red);
+      color: #fff;
+      box-shadow: 0 8px 18px rgba(179,0,0,0.35);
+    }
+
+    .btn-primary:hover {
+      background: #bf0000;
+    }
+
+    .btn-ghost {
+      background: #f6f6f8;
+      color: var(--text-main);
+      border: 1px solid #dedfe8;
+      box-shadow: none;
+    }
+
+    .btn-ghost:hover {
+      background: #ececf2;
+    }
+
+    .icon-circle {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 2px solid #fff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #ffffff22;
+      font-size: 0.8rem;
+    }
+
+    .search-meta-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .search-meta-left {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+
+    .checkbox-inline {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .checkbox-inline input {
+      accent-color: var(--accent-red);
+    }
+
+    .chip-counter {
+      padding: 4px 10px;
+      border-radius: var(--radius-pill);
+      background: #f3f4fa;
+      border: 1px solid #d6d8e6;
+    }
+
+    .sort-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    .sort-wrapper select {
+      border-radius: var(--radius-pill);
+      border: 1px solid #d4d7e2;
+      padding: 5px 11px;
+      font-size: 0.82rem;
+      background: #fff;
+      outline: none;
+    }
+
+    .ingredient-chips {
+      margin-top: 10px;
       display: flex;
       flex-wrap: wrap;
       gap: 6px;
-      margin-bottom: 8px;
-      min-height: 24px;
     }
 
     .chip {
+      border-radius: var(--radius-pill);
+      background: var(--chip-bg);
+      border: 1px solid var(--chip-border);
+      padding: 4px 10px;
+      font-size: 0.78rem;
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 4px 10px;
-      border-radius: 999px;
-      background: var(--red-soft);
-      font-size: 0.8rem;
-      color: var(--red-dark);
-      border: 1px solid var(--red-main);
     }
 
-    .chip span {
-      text-transform: lowercase;
-    }
-
-    .chip-remove {
+    .chip button {
       border: none;
       background: transparent;
       cursor: pointer;
+      padding: 0;
       font-size: 0.85rem;
       line-height: 1;
-      padding: 0;
-      color: var(--red-dark);
+      color: #888;
     }
 
-    .filters-row {
+    .results-section {
+      margin-top: 26px;
+    }
+
+    .results-header-row {
       display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
       align-items: center;
-      margin-top: 6px;
-    }
-
-    .filters-row label.inline {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      font-weight: 400;
-      font-size: 0.78rem;
-      color: #4b5563;
-      margin-bottom: 0;
-      text-transform: none;
-    }
-
-    .filters-row input[type="checkbox"] {
-      accent-color: var(--red-main);
-      cursor: pointer;
-    }
-
-    .small {
-      font-size: 0.78rem;
-      color: #6b7280;
-    }
-
-    /* Autocomplete-forslag */
-    .suggestions {
-      margin-top: 2px;
-      margin-bottom: 6px;
-      max-width: 260px;
-      background: #ffffff;
-      border-radius: 12px;
-      border: 1px solid #9ca3af;
-      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.25);
-      display: none;
-      overflow: hidden;
-      font-size: 0.8rem;
-    }
-
-    .suggestion-item {
-      padding: 6px 10px;
-      cursor: pointer;
-      color: var(--red-dark);
-    }
-
-    .suggestion-item:hover {
-      background: var(--red-soft);
-    }
-
-    .results-header {
-      display: flex;
       justify-content: space-between;
-      align-items: baseline;
+      gap: 12px;
       margin-bottom: 10px;
-      gap: 8px;
-      flex-wrap: wrap;
     }
 
-    .results-header h2 {
-      margin: 0;
-      font-size: 1.1rem;
+    .results-title {
+      font-size: 0.95rem;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: #111827;
-    }
-
-    .results-tools {
-      display: inline-flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 8px;
-      font-size: 0.8rem;
-      color: #4b5563;
-    }
-
-    .results-tools label {
-      margin-bottom: 0;
-      text-transform: none;
-      font-size: 0.8rem;
-      font-weight: 500;
-      letter-spacing: 0;
-    }
-
-    .results-tools select {
-      padding: 4px 8px;
-      font-size: 0.8rem;
-      border-radius: 999px;
-      border: 1px solid #d1d5db;
-      background: #ffffff;
-      color: #111827;
+      letter-spacing: 0.12em;
+      color: var(--accent-navy-soft);
+      font-weight: 600;
     }
 
     .results-count {
       font-size: 0.8rem;
-      color: #6b7280;
+      color: var(--text-muted);
     }
 
-    .results {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr);
-      gap: 14px;
+    .results-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
     }
 
     .recipe-card {
-      background: #ffffff;
-      border-radius: 18px;
-      padding: 10px 12px 10px;
-      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.25);
-      border-left: 4px solid var(--red-main);
-      border-top: 1px solid rgba(15, 23, 42, 0.06);
-      border-right: 1px solid rgba(15, 23, 42, 0.06);
-      border-bottom: 1px solid rgba(15, 23, 42, 0.06);
-    }
-
-    .recipe-card[open] {
-      box-shadow: 0 16px 36px rgba(15, 23, 42, 0.3);
-    }
-
-    /* summary som grid: titel | tidsboks | pil → tidsbokse i samme kolonne */
-    .recipe-card summary {
-      list-style: none;
+      background: linear-gradient(90deg, rgba(255,255,255,0.98), rgba(255,255,255,0.95));
+      border-radius: var(--radius-xl);
+      border: 1px solid #f0d6d6;
+      padding: 14px 16px 14px 18px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.06);
       cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .recipe-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, rgba(179,0,0,0.02), transparent 30%, transparent 70%, rgba(11,28,59,0.03));
+      pointer-events: none;
+    }
+
+    .recipe-summary-row {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) 170px auto;
-      column-gap: 16px;
-      align-items: flex-start;
+      grid-template-columns: minmax(0, 1.6fr) auto;
+      gap: 18px;
+      align-items: center;
     }
 
-    @media (max-width: 640px) {
-      .recipe-card summary {
-        grid-template-columns: minmax(0, 1fr);
-        row-gap: 8px;
-      }
-    }
-
-    .recipe-card summary::-webkit-details-marker {
-      display: none;
-    }
-
-    .recipe-summary-main {
-      min-width: 0;
+    .recipe-main-info {
+      position: relative;
+      z-index: 1;
     }
 
     .recipe-title {
-      font-weight: 700;
-      margin: 0 0 2px;
+      font-weight: 600;
       font-size: 1rem;
-    }
-
-    .recipe-summary-sub {
-      font-size: 0.8rem;
-      color: #6b7280;
-    }
-
-    .time-block {
-      background: var(--red-soft);
-      border-radius: 12px;
-      padding: 6px 10px;
-      font-size: 0.75rem;
-      color: var(--red-dark);
-      width: 170px;            /* fast bredde → lige kolonne */
-      border: 1px solid var(--red-main);
-    }
-
-    .time-line {
-      display: flex;
-      justify-content: space-between;
-      gap: 6px;
       margin-bottom: 2px;
     }
 
-    .time-line:last-child {
-      margin-bottom: 0;
+    .recipe-subtitle {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .recipe-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .tag-pill {
+      font-size: 0.75rem;
+      padding: 3px 9px;
+      border-radius: var(--radius-pill);
+      background: #f5f5f7;
+      border: 1px solid #e0e2eb;
+      color: #555;
+    }
+
+    .time-pill-column {
+      position: relative;
+      z-index: 1;
+      justify-self: end;
+    }
+
+    .time-pill {
+      background: var(--accent-red-soft);
+      border-radius: 18px;
+      padding: 8px 12px 8px;
+      border: 1px solid #f0c6c6;
+      font-size: 0.8rem;
+      display: inline-block;
+      min-width: 145px;
+    }
+
+    .time-pill-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .time-pill-row + .time-pill-row {
+      margin-top: 2px;
     }
 
     .time-label {
+      color: var(--accent-navy-soft);
       font-weight: 600;
     }
 
     .time-value {
-      white-space: nowrap;
+      font-variant-numeric: tabular-nums;
     }
 
-    .summary-arrow {
-      margin-left: 4px;
-      font-size: 0.8rem;
-      color: #6b7280;
-      align-self: center;
+    .chevron {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      font-size: 1rem;
+      color: #b89a9a;
+      transform: translate(4px, 4px);
     }
 
-    .recipe-body {
-      margin-top: 8px;
-      padding-top: 8px;
-      border-top: 1px solid #e5e7eb;
-      font-size: 0.8rem;
-      color: #111827;
+    .recipe-card.expanded .chevron {
+      transform: translate(4px, 4px) rotate(180deg);
     }
 
-    .tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 4px;
-      margin-bottom: 6px;
+    .recipe-details {
+      margin-top: 12px;
+      border-top: 1px solid #f0dede;
+      padding-top: 12px;
+      font-size: 0.9rem;
+      position: relative;
+      z-index: 1;
     }
 
-    .tag {
-      font-size: 0.7rem;
-      padding: 1px 7px;
-      border-radius: 999px;
-      background: #e5e7eb;
-      color: #374151;
-    }
-
-    /* Servings-linje: tekst på én linje, "Skalér til" + select på næste */
-    .servings-row {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 4px;
-      margin-bottom: 6px;
-    }
-
-    .servings-row span {
-      font-size: 0.78rem;
-      color: #4b5563;
-    }
-
-    .servings-scale-row {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px; /* større mellemrum mellem tekst og boks */
-    }
-
-    .servings-scale-row label {
-      font-size: 0.8rem;
-      font-weight: 600; /* fed skrift */
-      margin: 0;
-      text-transform: none;
-      letter-spacing: 0;
-    }
-
-    .servings-scale-row select {
-      padding: 4px 8px;
-      border-radius: 999px;
-      border: 1px solid #d1d5db;
-      background: #ffffff;
-      font-size: 0.8rem;
-      color: #111827;
-    }
-
-    .recipe-section-title {
-      font-size: 0.8rem;
-      font-weight: 700;
-      margin: 6px 0 2px;
-      color: #111827;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-    }
-
-    /* To kolonner: ingredienser (venstre) / fremgangsmåde (højre) */
-    .recipe-columns {
+    .recipe-details-grid {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-      gap: 16px;
+      grid-template-columns: 1fr 1fr;
+      gap: 26px;
       align-items: flex-start;
-      margin-top: 4px;
     }
 
-    @media (max-width: 800px) {
-      .recipe-columns {
-        grid-template-columns: minmax(0, 1fr);
-      }
+    .details-column h4 {
+      margin: 0 0 6px;
+      font-size: 0.9rem;
     }
 
-    .recipe-ingredients,
-    .recipe-instructions {
-      font-size: 0.8rem;
-      margin: 0;
-      padding-left: 16px;
+    .details-column ul {
+      margin: 0 0 8px 18px;
+      padding: 0;
     }
 
-    .recipe-ingredients li,
-    .recipe-instructions li {
+    .details-column li {
       margin-bottom: 3px;
     }
 
-    .no-results {
-      font-size: 0.9rem;
-      color: #6b7280;
+    .servings-row {
+      font-size: 0.85rem;
+      margin-bottom: 8px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .servings-row strong {
+      margin-right: 4px;
+    }
+
+    .servings-row select {
+      border-radius: var(--radius-pill);
+      border: 1px solid #d4d7e2;
+      padding: 3px 11px;
+      font-size: 0.85rem;
+      background: #fff;
+      outline: none;
+    }
+
+    .notes {
+      margin-top: 10px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-style: italic;
+    }
+
+    .empty-state {
       margin-top: 8px;
+      font-size: 0.88rem;
+      color: var(--text-muted);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .app-shell {
+        margin-top: 18px;
+      }
+
+      .top-banner-title {
+        font-size: 1.6rem;
+        letter-spacing: 0.3em;
+      }
+
+      .search-card {
+        padding: 16px 14px 14px;
+      }
+
+      .search-main-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .search-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .search-meta-row {
+        align-items: flex-start;
+      }
+
+      .recipe-summary-row {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 10px;
+      }
+
+      .time-pill-column {
+        justify-self: flex-start;
+      }
+
+      .recipe-details-grid {
+        grid-template-columns: 1fr;
+        gap: 18px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .top-banner-title {
+        font-size: 1.4rem;
+        letter-spacing: 0.22em;
+      }
+
+      .time-pill {
+        width: 100%;
+      }
     }
   </style>
 </head>
 <body>
-  <!-- Dekorative bobler -->
   <div class="bg-bubbles">
-    <div class="bubble bubble--1"></div>
-    <div class="bubble bubble--2"></div>
-    <div class="bubble bubble--3"></div>
-    <div class="bubble bubble--4"></div>
-    <div class="bubble bubble--5"></div>
-    <div class="bubble bubble--6"></div>
-    <div class="bubble bubble--7"></div>
-    <div class="bubble bubble--8"></div>
-    <div class="bubble bubble--9"></div>
-    <div class="bubble bubble--10"></div>
-    <div class="bubble bubble--11"></div>
-    <div class="bubble bubble--12"></div>
-    <div class="bubble bubble--13"></div>
-    <div class="bubble bubble--14"></div>
-    <div class="bubble bubble--15"></div>
-    <div class="bubble bubble--16"></div>
-    <div class="bubble bubble--17"></div>
-    <div class="bubble bubble--18"></div>
-    <div class="bubble bubble--19"></div>
-    <div class="bubble bubble--20"></div>
+    <span class="b1"></span>
+    <span class="b2"></span>
+    <span class="b3"></span>
+    <span class="b4"></span>
+    <span class="b5"></span>
+    <span class="b6"></span>
+    <span class="b7"></span>
+    <span class="b8"></span>
+    <span class="b9"></span>
+    <span class="b10"></span>
+    <span class="b11"></span>
+    <span class="b12"></span>
   </div>
 
-  <div class="page">
-    <!-- skjult status til JS -->
-    <div id="loadStatus" class="status"></div>
+  <header class="top-banner">
+    <div class="top-banner-title">MADDAG</div>
+  </header>
 
-    <section class="card">
-      <label for="ingredientInput">Tilføj ingrediens</label>
+  <main class="app-shell">
+    <section class="search-card">
+      <div class="search-header">
+        <div class="search-title">Tilføj ingrediens</div>
+      </div>
 
-      <div class="input-row">
-        <input
-          type="text"
-          id="ingredientInput"
-          placeholder="fx kartofler"
-          autocomplete="off"
-        />
-        <button id="addIngredientButton" type="button">➕ Tilføj</button>
-        <button id="clearIngredientsButton" type="button" class="button--ghost">
+      <div class="search-main-row">
+        <div class="search-input-wrapper">
+          <input
+            id="ingredient-input"
+            type="text"
+            list="ingredient-suggestions"
+            placeholder="fx kartofler"
+            autocomplete="off"
+          />
+          <datalist id="ingredient-suggestions"></datalist>
+        </div>
+
+        <button class="btn btn-ghost" id="add-ingredient-btn">
+          <span class="icon-circle">+</span>
+          Tilføj
+        </button>
+
+        <button class="btn btn-ghost" id="reset-ingredients-btn">
           Nulstil ingredienser
         </button>
       </div>
 
-      <div id="suggestions" class="suggestions"></div>
+      <div class="ingredient-chips" id="ingredient-chips"></div>
 
-      <div id="chipsContainer" class="chips"></div>
+      <div class="search-meta-row">
+        <div class="search-meta-left">
+          <button class="btn btn-primary" id="search-btn">
+            <span class="icon-circle">🔍</span>
+            Find opskrifter
+          </button>
 
-      <div class="filters-row">
-        <button id="searchButton" type="button">🔍 Find opskrifter</button>
+          <label class="checkbox-inline">
+            <input type="checkbox" id="allow-missing-checkbox" checked />
+            <span>Tillad 1 manglende ingrediens</span>
+          </label>
 
-        <label class="inline">
-          <input type="checkbox" id="allowOneMissing" />
-          Tillad 1 manglende ingrediens
-        </label>
+          <div class="chip-counter" id="selected-counter">
+            Ingen ingredienser tilføjet endnu.
+          </div>
+        </div>
 
-        <span class="small" id="ingredientInfo"></span>
-      </div>
-    </section>
-
-    <section>
-      <div class="results-header">
-        <h2>Forslag</h2>
-        <div class="results-tools">
-          <label for="sortOrder">Sortér:</label>
-          <select id="sortOrder">
-            <option value="match">Bedste match</option>
+        <div class="sort-wrapper">
+          <span>Sortér:</span>
+          <select id="sort-select">
+            <option value="best">Bedste match</option>
             <option value="time-asc">Kortest tid</option>
             <option value="time-desc">Længst tid</option>
           </select>
-          <span class="results-count" id="resultsCount"></span>
         </div>
       </div>
-      <div id="results" class="results"></div>
-      <p id="noResults" class="no-results" style="display: none">
-        Ingen opskrifter matchede med de nuværende ingredienser 🙂
-      </p>
     </section>
-  </div>
 
-  <script>
-    let allRecipes = [];
-    let recipesLoaded = false;
-    let selectedIngredients = [];
-    let ingredientDictionary = new Map(); // normalized -> visningsnavn
+    <section class="results-section">
+      <div class="results-header-row">
+        <div class="results-title">Forslag</div>
+        <div class="results-count" id="results-count"></div>
+      </div>
+      <div id="results-list" class="results-list"></div>
+      <div id="empty-state" class="empty-state">
+        Tilføj én eller flere ingredienser og tryk “Find opskrifter” for at se forslag.
+      </div>
+    </section>
+  </main>
 
-    function normalize(text) {
-      return text
-        .toString()
-        .trim()
-        .toLowerCase()
-        .replace(/\s+/g, " ");
+ <script>
+  const ingredientInput = document.getElementById("ingredient-input");
+  const addIngredientBtn = document.getElementById("add-ingredient-btn");
+  const resetIngredientsBtn = document.getElementById("reset-ingredients-btn");
+  const ingredientChips = document.getElementById("ingredient-chips");
+  const searchBtn = document.getElementById("search-btn");
+  const allowMissingCheckbox = document.getElementById("allow-missing-checkbox");
+  const sortSelect = document.getElementById("sort-select");
+  const resultsList = document.getElementById("results-list");
+  const resultsCount = document.getElementById("results-count");
+  const emptyState = document.getElementById("empty-state");
+  const selectedCounter = document.getElementById("selected-counter");
+  const suggestionsList = document.getElementById("ingredient-suggestions");
+
+  let recipes = [];
+  let selectedIngredients = [];
+  let allKeywordsSet = new Set();
+
+  const normalizeText = (str) =>
+    (str || "").toString().toLowerCase().trim();
+
+  /* Alias-grupper – synonymer */
+  const aliasGroups = [
+    ["kylling", "kyllingebryst", "kyllingeinderfilet", "kyllingelår", "kyllingelår og overlår", "kyllingekød", "kyllingefars"],
+    ["karry", "karrypulver", "karrypasta"],
+    ["oksekød", "hakket oksekød", "oksebov", "okseklump", "okseskank", "oksesteg", "oksegryde"],
+    ["svinekød", "hakket svinekød", "svinekæber", "svinesteg", "svinefilet", "svinekoteletter"],
+    ["fisk", "laks", "torsk", "hvid fisk", "fiskefars", "fiskefrikadeller"],
+    ["bælgfrugter", "kikærter", "linser", "kidneybønner", "sorte bønner", "hvide bønner"]
+  ];
+
+  const expansionMap = {};
+  aliasGroups.forEach(group => {
+    const normalizedGroup = group.map(normalizeText);
+    normalizedGroup.forEach(term => {
+      expansionMap[term] = normalizedGroup;
+    });
+  });
+
+  function getIngredientVariants(term) {
+    const t = normalizeText(term);
+    return expansionMap[t] || [t];
+  }
+
+  function collectTokens(text, set) {
+    normalizeText(text)
+      .split(/[^a-zæøå0-9]+/g)
+      .filter(Boolean)
+      .forEach(t => set.add(t));
+  }
+
+  function updateSelectedCounter() {
+    if (selectedIngredients.length === 0) {
+      selectedCounter.textContent = "Ingen ingredienser tilføjet endnu.";
+    } else if (selectedIngredients.length === 1) {
+      selectedCounter.textContent = "1 ingrediens valgt.";
+    } else {
+      selectedCounter.textContent = `${selectedIngredients.length} ingredienser valgt.`;
     }
+  }
 
-    function buildIngredientDictionary() {
-      ingredientDictionary.clear();
-      allRecipes.forEach((recipe) => {
-        (recipe.ingredientKeywords || []).forEach((kw) => {
-          const norm = normalize(kw);
-          if (!norm) return;
-          if (!ingredientDictionary.has(norm)) {
-            ingredientDictionary.set(norm, kw);
-          }
-        });
+  function renderIngredientChips() {
+    ingredientChips.innerHTML = "";
+    selectedIngredients.forEach((item, index) => {
+      const chip = document.createElement("div");
+      chip.className = "chip";
+      chip.innerHTML = `<span>${item.label}</span>`;
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.textContent = "×";
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        selectedIngredients.splice(index, 1);
+        renderIngredientChips();
+        updateSelectedCounter();
       });
+      chip.appendChild(btn);
+      ingredientChips.appendChild(chip);
+    });
+  }
+
+  function addIngredientFromInput() {
+    const value = ingredientInput.value.trim();
+    if (!value) return;
+    const normalized = normalizeText(value);
+    if (selectedIngredients.some((i) => i.normalized === normalized)) {
+      ingredientInput.value = "";
+      return;
     }
+    selectedIngredients.push({ label: value, normalized });
+    ingredientInput.value = "";
+    renderIngredientChips();
+    updateSelectedCounter();
+  }
 
-    function renderIngredientChips() {
-      const container = document.getElementById("chipsContainer");
-      const info = document.getElementById("ingredientInfo");
-      container.innerHTML = "";
+  addIngredientBtn.addEventListener("click", () => {
+    addIngredientFromInput();
+    ingredientInput.focus();
+  });
 
-      if (selectedIngredients.length === 0) {
-        const hint = document.createElement("span");
-        hint.className = "small";
-        hint.textContent = "Ingen ingredienser tilføjet endnu.";
-        container.appendChild(hint);
-        info.textContent = "";
-        return;
-      }
-
-      selectedIngredients.forEach((norm) => {
-        const chip = document.createElement("div");
-        chip.className = "chip";
-
-        const label = document.createElement("span");
-        const display = ingredientDictionary.get(norm) || norm;
-        label.textContent = display;
-
-        const removeBtn = document.createElement("button");
-        removeBtn.className = "chip-remove";
-        removeBtn.type = "button";
-        removeBtn.textContent = "✕";
-        removeBtn.addEventListener("click", () => {
-          selectedIngredients = selectedIngredients.filter((i) => i !== norm);
-          renderIngredientChips();
-          searchRecipes();
-        });
-
-        chip.appendChild(label);
-        chip.appendChild(removeBtn);
-        container.appendChild(chip);
-      });
-
-      info.textContent =
-        selectedIngredients.length === 1
-          ? "1 ingrediens valgt"
-          : selectedIngredients.length + " ingredienser valgt";
+  ingredientInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      addIngredientFromInput();
     }
+  });
 
-    function hideSuggestions() {
-      const suggestionsEl = document.getElementById("suggestions");
-      suggestionsEl.style.display = "none";
-      suggestionsEl.innerHTML = "";
-    }
+  resetIngredientsBtn.addEventListener("click", () => {
+    selectedIngredients = [];
+    renderIngredientChips();
+    updateSelectedCounter();
+    resultsList.innerHTML = "";
+    resultsCount.textContent = "";
+    emptyState.style.display = "block";
+  });
 
-    function addIngredientFromNormalized(norm) {
-      if (!norm) return;
-      if (selectedIngredients.includes(norm)) return;
-      selectedIngredients.push(norm);
-      renderIngredientChips();
-      searchRecipes();
-      hideSuggestions();
-    }
+  function buildSuggestionsDatalist() {
+    suggestionsList.innerHTML = "";
+    const sorted = Array.from(allKeywordsSet).sort();
+    sorted.forEach((kw) => {
+      const opt = document.createElement("option");
+      opt.value = kw;
+      suggestionsList.appendChild(opt);
+    });
+  }
 
-    function addIngredient() {
-      const input = document.getElementById("ingredientInput");
-      const suggestionsEl = document.getElementById("suggestions");
-      const firstSuggestion = suggestionsEl.querySelector(".suggestion-item");
+  function scaleAmount(amount, factor) {
+    if (!amount || factor === 1) return amount;
+    const regex = /(\d+([.,]\d+)?)/g;
+    return amount.replace(regex, (match) => {
+      const num = parseFloat(match.replace(",", "."));
+      if (isNaN(num)) return match;
+      let scaled = num * factor;
+      const rounded = Math.round(scaled * 2) / 2;
+      let str = rounded.toString().replace(".", ",");
+      if (str.endsWith(",0")) str = str.slice(0, -2);
+      return str;
+    });
+  }
 
-      // Hvis der er forslag, vælg det første ved Enter/Tilføj
-      if (firstSuggestion) {
-        const norm = firstSuggestion.dataset.norm;
-        addIngredientFromNormalized(norm);
-        input.value = "";
-        return;
-      }
+  /** Strammere match-logik:
+   *  - vi matcher mod recipe._tokens (kort, præcist sæt)
+   *  - en valgt ingrediens er KUN match, hvis en af dens aliaser findes som token.
+   */
+  function calculateMatch(recipe) {
+    const tokens = recipe._tokens || [];
+    const total = selectedIngredients.length;
+    if (total === 0) return { matches: 0, missing: 0 };
 
-      const raw = normalize(input.value);
-      if (!raw) return;
-      addIngredientFromNormalized(raw);
-      input.value = "";
-    }
+    let matches = 0;
+    selectedIngredients.forEach((ing) => {
+      const variants = getIngredientVariants(ing.normalized);
+      const found = variants.some((v) => tokens.includes(v));
+      if (found) matches++;
+    });
+    const missing = total - matches;
+    return { matches, missing };
+  }
 
-    function clearIngredients() {
-      selectedIngredients = [];
-      renderIngredientChips();
-      renderResults([]);
-      hideSuggestions();
-    }
-
-    function matchCountForRecipe(recipe, ingredients) {
-      const keywords = (recipe.ingredientKeywords || []).map((k) =>
-        normalize(k)
-      );
-      if (!keywords.length) return 0;
-      let count = 0;
-      ingredients.forEach((userIng) => {
-        const matched = keywords.some(
-          (kw) => kw.includes(userIng) || userIng.includes(kw)
-          // fx userIng = "kylling" matcher kw = "kyllingebryst"
-        );
-        if (matched) count++;
-      });
-      return count;
-    }
-
-    function getTotalMinutes(recipe) {
-      if (typeof recipe.timeMinutes === "number") return recipe.timeMinutes;
-      const prep = typeof recipe.prepTimeMinutes === "number"
-        ? recipe.prepTimeMinutes
-        : null;
-      const cook = typeof recipe.cookTimeMinutes === "number"
-        ? recipe.cookTimeMinutes
-        : null;
-      if (prep != null && cook != null) return prep + cook;
-      // hvis vi ikke ved det, læg dem bagerst ved tidssortering
-      return Number.POSITIVE_INFINITY;
-    }
-
-    function searchRecipes() {
-      const resultsContainer = document.getElementById("results");
-      const noResultsEl = document.getElementById("noResults");
-      const resultsCount = document.getElementById("resultsCount");
-      const sortOrder =
-        document.getElementById("sortOrder").value || "match";
-
-      if (!recipesLoaded) {
-        resultsContainer.innerHTML = "";
-        resultsCount.textContent = "";
-        noResultsEl.style.display = "none";
-        return;
-      }
-
-      if (selectedIngredients.length === 0) {
-        resultsContainer.innerHTML = "";
-        resultsCount.textContent = "";
-        noResultsEl.style.display = "none";
-        return;
-      }
-
-      const allowOneMissing =
-        document.getElementById("allowOneMissing").checked;
-
-      const requiredMatches = allowOneMissing
-        ? Math.max(selectedIngredients.length - 1, 1)
-        : selectedIngredients.length;
-
-      let matches = allRecipes
-        .map((recipe) => {
-          const matchCount = matchCountForRecipe(
-            recipe,
-            selectedIngredients
-          );
-          const totalMinutes = getTotalMinutes(recipe);
-          return { recipe, matchCount, totalMinutes };
-        })
-        .filter((entry) => entry.matchCount >= requiredMatches);
-
-      // Sortering
-      matches.sort((a, b) => {
-        if (sortOrder === "time-asc") {
-          return a.totalMinutes - b.totalMinutes || b.matchCount - a.matchCount;
-        } else if (sortOrder === "time-desc") {
-          return b.totalMinutes - a.totalMinutes || b.matchCount - a.matchCount;
-        } else {
-          // "match" – standard
-          return b.matchCount - a.matchCount || a.totalMinutes - b.totalMinutes;
-        }
-      });
-
-      const onlyRecipes = matches.map((m) => ({
-        ...m.recipe,
-        _matchCount: m.matchCount,
-        _totalMinutes: m.totalMinutes,
-      }));
-
-      renderResults(onlyRecipes);
-    }
-
-    // Skaler mængder ved at gange første tal i strengen
-    function scaleAmount(amount, factor) {
-      if (!amount || typeof amount !== "string" || factor === 1) {
-        return amount || "";
-      }
-      const trimmed = amount.trim();
-      const match = trimmed.match(/^(\d+(?:[.,]\d+)?)(.*)$/);
-      if (!match) return amount;
-
-      const base = parseFloat(match[1].replace(",", "."));
-      if (isNaN(base)) return amount;
-
-      const scaled = base * factor;
-      const rounded = Math.round((scaled + Number.EPSILON) * 10) / 10;
-      const isInt = Math.abs(rounded - Math.round(rounded)) < 0.05;
-      const numStr = isInt
-        ? Math.round(rounded).toString()
-        : rounded.toString().replace(".", ",");
-
-      return numStr + match[2];
-    }
-
-    function renderResults(recipes) {
-      const resultsContainer = document.getElementById("results");
-      const noResultsEl = document.getElementById("noResults");
-      const resultsCount = document.getElementById("resultsCount");
-
-      resultsContainer.innerHTML = "";
-      noResultsEl.style.display = "none";
+  function renderResults(items) {
+    resultsList.innerHTML = "";
+    if (!items || items.length === 0) {
       resultsCount.textContent = "";
+      emptyState.style.display = "block";
+      return;
+    }
+    emptyState.style.display = "none";
+    resultsCount.textContent = `${items.length} resultater`;
 
-      if (!recipes || recipes.length === 0) {
-        if (selectedIngredients.length > 0) {
-          noResultsEl.style.display = "block";
-          resultsCount.textContent = "0 resultater";
-        }
-        return;
-      }
+    items.forEach(({ recipe }) => {
+      const card = document.createElement("article");
+      card.className = "recipe-card";
 
-      resultsCount.textContent =
-        recipes.length === 1
-          ? "1 resultat"
-          : recipes.length + " resultater";
+      const summaryRow = document.createElement("div");
+      summaryRow.className = "recipe-summary-row";
 
-      recipes.forEach((recipe) => {
-        const card = document.createElement("details");
-        card.className = "recipe-card";
+      const mainInfo = document.createElement("div");
+      mainInfo.className = "recipe-main-info";
+      const titleEl = document.createElement("div");
+      titleEl.className = "recipe-title";
+      titleEl.textContent = recipe.title;
+      const subtitleEl = document.createElement("div");
+      subtitleEl.className = "recipe-subtitle";
+      subtitleEl.textContent = `Opskrift til ${recipe.servings} pers.`;
 
-        const summary = document.createElement("summary");
+      const tagsWrap = document.createElement("div");
+      tagsWrap.className = "recipe-tags";
+      (recipe.tags || []).forEach((tag) => {
+        const span = document.createElement("span");
+        span.className = "tag-pill";
+        span.textContent = tag;
+        tagsWrap.appendChild(span);
+      });
 
-        const summaryMain = document.createElement("div");
-        summaryMain.className = "recipe-summary-main";
+      mainInfo.appendChild(titleEl);
+      mainInfo.appendChild(subtitleEl);
+      mainInfo.appendChild(tagsWrap);
 
-        const title = document.createElement("h3");
-        title.className = "recipe-title";
-        title.textContent = recipe.title || "(uden titel)";
-        summaryMain.appendChild(title);
+      const timeCol = document.createElement("div");
+      timeCol.className = "time-pill-column";
+      const timePill = document.createElement("div");
+      timePill.className = "time-pill";
 
-        const subtitle = document.createElement("div");
-        subtitle.className = "recipe-summary-sub";
-        const servings =
-          typeof recipe.servings === "number"
-            ? recipe.servings + " pers."
-            : recipe.servings || "";
-        subtitle.textContent = servings ? "Opskrift til " + servings : "";
-        summaryMain.appendChild(subtitle);
+      const row1 = document.createElement("div");
+      row1.className = "time-pill-row";
+      row1.innerHTML = `<span class="time-label">Forberedelse</span><span class="time-value">${recipe.prepTime || ""}</span>`;
 
-        const timeBlock = document.createElement("div");
-        timeBlock.className = "time-block";
+      const row2 = document.createElement("div");
+      row2.className = "time-pill-row";
+      row2.innerHTML = `<span class="time-label">Tilberedning</span><span class="time-value">${recipe.cookTime || ""}</span>`;
 
-        const prep = recipe.prepTime || "–";
-        const cook = recipe.cookTime || "–";
-        let total = recipe.time;
-        if (
-          !total &&
-          typeof recipe.prepTimeMinutes === "number" &&
-          typeof recipe.cookTimeMinutes === "number"
-        ) {
-          const totalMin = recipe.prepTimeMinutes + recipe.cookTimeMinutes;
-          total = totalMin + " min";
-        }
-        total = total || "–";
+      const row3 = document.createElement("div");
+      row3.className = "time-pill-row";
+      row3.innerHTML = `<span class="time-label">I alt</span><span class="time-value">${recipe.time || ""}</span>`;
 
-        function addTimeLine(label, value) {
-          const line = document.createElement("div");
-          line.className = "time-line";
-          const l = document.createElement("span");
-          l.className = "time-label";
-          l.textContent = label;
-          const v = document.createElement("span");
-          v.className = "time-value";
-          v.textContent = value;
-          line.appendChild(l);
-          line.appendChild(v);
-          timeBlock.appendChild(line);
-        }
+      timePill.appendChild(row1);
+      timePill.appendChild(row2);
+      timePill.appendChild(row3);
+      timeCol.appendChild(timePill);
 
-        addTimeLine("Forberedelse", prep);
-        addTimeLine("Tilberedning", cook);
-        addTimeLine("I alt", total);
+      const chev = document.createElement("div");
+      chev.className = "chevron";
+      chev.textContent = "▾";
+      timeCol.appendChild(chev);
 
-        const arrow = document.createElement("span");
-        arrow.className = "summary-arrow";
-        arrow.textContent = "▾";
+      summaryRow.appendChild(mainInfo);
+      summaryRow.appendChild(timeCol);
 
-        summary.appendChild(summaryMain);
-        summary.appendChild(timeBlock);
-        summary.appendChild(arrow);
+      const details = document.createElement("div");
+      details.className = "recipe-details";
+      details.style.display = "none";
 
-        card.appendChild(summary);
+      card.appendChild(summaryRow);
+      card.appendChild(details);
 
-        card.addEventListener("toggle", () => {
-          arrow.textContent = card.open ? "▴" : "▾";
-        });
-
-        const body = document.createElement("div");
-        body.className = "recipe-body";
-
-        if ((recipe.tags || []).length > 0) {
-          const tagsEl = document.createElement("div");
-          tagsEl.className = "tags";
-          (recipe.tags || []).forEach((tag) => {
-            const span = document.createElement("span");
-            span.className = "tag";
-            span.textContent = tag;
-            tagsEl.appendChild(span);
-          });
-          body.appendChild(tagsEl);
-        }
-
-        const baseServings =
-          typeof recipe.servings === "number" ? recipe.servings : 4;
-        const baseIngredients = (recipe.ingredients || []).map((ing) => ({
-          ...ing,
-        }));
+      function renderDetails(servingsTarget) {
+        const servings = recipe.servings || servingsTarget || 4;
+        let target = servingsTarget || servings;
+        details.innerHTML = "";
 
         const servingsRow = document.createElement("div");
         servingsRow.className = "servings-row";
+        servingsRow.innerHTML = `<span>Opskriften er skrevet til ${servings} personer.</span>`;
+        const scaleLabel = document.createElement("strong");
+        scaleLabel.textContent = "Skalér til:";
+        servingsRow.appendChild(scaleLabel);
 
-        const baseInfo = document.createElement("span");
-        baseInfo.textContent =
-          "Opskriften er skrevet til " + baseServings + " personer.";
-        servingsRow.appendChild(baseInfo);
-
-        const scaleRow = document.createElement("div");
-        scaleRow.className = "servings-scale-row";
-
-        const selectLabel = document.createElement("label");
-        selectLabel.textContent = "Skalér til";
-
-        const servingsSelect = document.createElement("select");
-        const possibleServings = [2, 4, 6, 8, 10];
-        if (!possibleServings.includes(baseServings)) {
-          possibleServings.unshift(baseServings);
-        }
-        possibleServings.forEach((val) => {
+        const select = document.createElement("select");
+        for (let s = 2; s <= 10; s++) {
           const opt = document.createElement("option");
-          opt.value = val;
-          opt.textContent = val + " pers.";
-          if (val === baseServings) opt.selected = true;
-          servingsSelect.appendChild(opt);
-        });
-
-        scaleRow.appendChild(selectLabel);
-        scaleRow.appendChild(servingsSelect);
-        servingsRow.appendChild(scaleRow);
-        body.appendChild(servingsRow);
-
-        /* TO KOLONNER: ingredienser (venstre) / fremgangsmåde (højre) */
-        const columns = document.createElement("div");
-        columns.className = "recipe-columns";
-
-        const leftCol = document.createElement("div");
-        const rightCol = document.createElement("div");
-
-        const ingredientsTitle = document.createElement("div");
-        ingredientsTitle.className = "recipe-section-title";
-        ingredientsTitle.textContent = "Ingredienser";
-        leftCol.appendChild(ingredientsTitle);
-
-        const ingredientsList = document.createElement("ul");
-        ingredientsList.className = "recipe-ingredients";
-        leftCol.appendChild(ingredientsList);
-
-        function updateIngredientsList() {
-          ingredientsList.innerHTML = "";
-          const desiredServings = parseInt(
-            servingsSelect.value || baseServings,
-            10
-          );
-          const factor =
-            desiredServings && baseServings
-              ? desiredServings / baseServings
-              : 1;
-
-          baseIngredients.forEach((ing) => {
-            const li = document.createElement("li");
-            const amountText = scaleAmount(ing.amount || "", factor);
-            const amountPart = amountText ? amountText + " " : "";
-            li.textContent = amountPart + ing.name;
-            ingredientsList.appendChild(li);
-          });
+          opt.value = s;
+          opt.textContent = `${s} pers.`;
+          if (s === target) opt.selected = true;
+          select.appendChild(opt);
         }
+        servingsRow.appendChild(select);
+        details.appendChild(servingsRow);
 
-        servingsSelect.addEventListener("change", updateIngredientsList);
-        updateIngredientsList();
+        const grid = document.createElement("div");
+        grid.className = "recipe-details-grid";
 
-        const instructionsTitle = document.createElement("div");
-        instructionsTitle.className = "recipe-section-title";
-        instructionsTitle.textContent = "Fremgangsmåde";
-        rightCol.appendChild(instructionsTitle);
+        const colIng = document.createElement("div");
+        colIng.className = "details-column";
+        const hIng = document.createElement("h4");
+        hIng.textContent = "Ingredienser";
+        colIng.appendChild(hIng);
 
-        const instructionsList = document.createElement("ol");
-        instructionsList.className = "recipe-instructions";
+        const listIng = document.createElement("ul");
+        const factor = target / (servings || target);
+        (recipe.ingredients || []).forEach((ing) => {
+          const li = document.createElement("li");
+          const amount = scaleAmount(ing.amount, factor);
+          li.textContent = `${amount ? amount + " " : ""}${ing.name}`;
+          listIng.appendChild(li);
+        });
+        colIng.appendChild(listIng);
+
+        const colSteps = document.createElement("div");
+        colSteps.className = "details-column";
+        const hSteps = document.createElement("h4");
+        hSteps.textContent = "Fremgangsmåde";
+        colSteps.appendChild(hSteps);
+
+        const listSteps = document.createElement("ol");
         (recipe.instructions || []).forEach((step) => {
           const li = document.createElement("li");
           li.textContent = step;
-          instructionsList.appendChild(li);
+          listSteps.appendChild(li);
         });
-        rightCol.appendChild(instructionsList);
+        colSteps.appendChild(listSteps);
 
-        columns.appendChild(leftCol);
-        columns.appendChild(rightCol);
-        body.appendChild(columns);
+        grid.appendChild(colIng);
+        grid.appendChild(colSteps);
+        details.appendChild(grid);
 
         if (recipe.notes) {
-          const notesTitle = document.createElement("div");
-          notesTitle.className = "recipe-section-title";
-          notesTitle.textContent = "Noter";
-          const notesP = document.createElement("p");
-          notesP.className = "small";
-          notesP.textContent = recipe.notes;
-          body.appendChild(notesTitle);
-          body.appendChild(notesP);
+          const notesEl = document.createElement("div");
+          notesEl.className = "notes";
+          notesEl.textContent = recipe.notes;
+          details.appendChild(notesEl);
         }
 
-        card.appendChild(body);
-        resultsContainer.appendChild(card);
-      });
-    }
-
-    // Autocomplete-søgning i ingrediens-ordbog
-    function updateSuggestions() {
-      const input = document.getElementById("ingredientInput");
-      const suggestionsEl = document.getElementById("suggestions");
-
-      const term = normalize(input.value);
-      suggestionsEl.innerHTML = "";
-
-      if (!recipesLoaded || term.length < 2) {
-        suggestionsEl.style.display = "none";
-        return;
-      }
-
-      const matches = [];
-      for (const [norm, original] of ingredientDictionary.entries()) {
-        if (norm.startsWith(term)) {
-          matches.push({ norm, original });
-          if (matches.length >= 8) break;
-        }
-      }
-
-      if (matches.length === 0) {
-        suggestionsEl.style.display = "none";
-        return;
-      }
-
-      matches.forEach((m) => {
-        const item = document.createElement("div");
-        item.className = "suggestion-item";
-        item.textContent = m.original;
-        item.dataset.norm = m.norm;
-        item.addEventListener("mousedown", (e) => {
-          e.preventDefault();
-          addIngredientFromNormalized(m.norm);
-          document.getElementById("ingredientInput").value = "";
+        select.addEventListener("change", () => {
+          const newTarget = parseInt(select.value, 10);
+          renderDetails(newTarget);
         });
-        suggestionsEl.appendChild(item);
-      });
+      }
 
-      suggestionsEl.style.display = "block";
-    }
-
-    // Indlæs recipes.json
-    (function loadRecipes() {
-      const statusEl = document.getElementById("loadStatus");
-      fetch("recipes.json")
-        .then((res) => {
-          if (!res.ok) {
-            throw new Error(
-              "Kunne ikke hente recipes.json (status " + res.status + ")"
-            );
-          }
-          return res.json();
-        })
-        .then((data) => {
-          if (!Array.isArray(data)) {
-            throw new Error("recipes.json skal være et JSON-array []");
-          }
-          allRecipes = data;
-          recipesLoaded = true;
-          buildIngredientDictionary();
-          statusEl.textContent =
-            "Indlæste " +
-            allRecipes.length +
-            (allRecipes.length === 1
-              ? " opskrift."
-              : " opskrifter.");
-        })
-        .catch((err) => {
-          console.error(err);
-          recipesLoaded = false;
-          statusEl.textContent =
-            "Fejl ved indlæsning af recipes.json: " + err.message;
-        });
-    })();
-
-    // Event listeners
-    document
-      .getElementById("addIngredientButton")
-      .addEventListener("click", addIngredient);
-
-    document
-      .getElementById("ingredientInput")
-      .addEventListener("keydown", function (event) {
-        if (event.key === "Enter") {
-          event.preventDefault();
-          addIngredient();
+      let expanded = false;
+      card.addEventListener("click", (e) => {
+        if (e.target.tagName.toLowerCase() === "select") return;
+        expanded = !expanded;
+        if (expanded) {
+          renderDetails(recipe.servings || 4);
+          details.style.display = "block";
+          card.classList.add("expanded");
+        } else {
+          details.style.display = "none";
+          card.classList.remove("expanded");
         }
       });
 
-    document
-      .getElementById("ingredientInput")
-      .addEventListener("input", updateSuggestions);
+      resultsList.appendChild(card);
+    });
+  }
 
-    document
-      .getElementById("clearIngredientsButton")
-      .addEventListener("click", clearIngredients);
+  function performSearch() {
+    if (!recipes || recipes.length === 0) return;
 
-    document
-      .getElementById("searchButton")
-      .addEventListener("click", searchRecipes);
+    const allowMissing = allowMissingCheckbox.checked;
+    const total = selectedIngredients.length;
 
-    document
-      .getElementById("allowOneMissing")
-      .addEventListener("change", searchRecipes);
+    const resultsWithMeta = recipes.map((recipe) => {
+      const { matches, missing } = calculateMatch(recipe);
+      return { recipe, matches, missing };
+    });
 
-    document
-      .getElementById("sortOrder")
-      .addEventListener("change", searchRecipes);
+    let filtered = resultsWithMeta.filter(({ matches, missing }) => {
+      if (total === 0) return false;
+      const allowedMissing = allowMissing ? 1 : 0;
+      if (missing > allowedMissing) return false;
+      return matches > 0;
+    });
 
-    // Luk forslag når man klikker udenfor
-    document.addEventListener("click", (e) => {
-      const s = document.getElementById("suggestions");
-      const input = document.getElementById("ingredientInput");
-      if (!s.contains(e.target) && e.target !== input) {
-        hideSuggestions();
+    const sortMode = sortSelect.value;
+    filtered.sort((a, b) => {
+      const timeA = a.recipe.timeMinutes || 9999;
+      const timeB = b.recipe.timeMinutes || 9999;
+      if (sortMode === "time-asc") {
+        return timeA - timeB;
+      } else if (sortMode === "time-desc") {
+        return timeB - timeA;
+      } else {
+        if (b.matches !== a.matches) return b.matches - a.matches;
+        const missingDiff = a.missing - b.missing;
+        if (missingDiff !== 0) return missingDiff;
+        return timeA - timeB;
       }
     });
 
-    // Første render
-    renderIngredientChips();
-  </script>
+    renderResults(filtered);
+  }
+
+  searchBtn.addEventListener("click", performSearch);
+  allowMissingCheckbox.addEventListener("change", performSearch);
+  sortSelect.addEventListener("change", performSearch);
+
+  // Hent recipes.json og byg tokens
+  fetch("recipes.json")
+    .then((res) => res.json())
+    .then((data) => {
+      recipes = (data || []).map((r) => {
+        const tokenSet = new Set();
+        (r.ingredientKeywords || []).forEach((kw) => collectTokens(kw, tokenSet));
+        (r.ingredients || []).forEach((ing) => collectTokens(ing.name, tokenSet));
+        const tokens = Array.from(tokenSet);
+        tokens.forEach((t) => allKeywordsSet.add(t));
+        return { ...r, _tokens: tokens };
+      });
+      buildSuggestionsDatalist();
+    })
+    .catch((err) => {
+      console.error("Kunne ikke indlæse recipes.json", err);
+    });
+</script>
 </body>
 </html>
