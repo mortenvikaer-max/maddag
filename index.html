@@ -8,8 +8,7 @@
     :root {
       --red-main: #c8102e;      /* Politiken-agtig rød */
       --red-dark: #8f071f;
-      --red-soft: #fbeaec;      /* lys men ikke lyserød/pastel */
-      --red-border: #a50d26;
+      --red-soft: #fbeaec;      /* lys rødlig, men ikke pastel-lyserød */
       --bg-main: #f3f4f6;       /* lys grå baggrund */
       --ink: #111827;
 
@@ -26,40 +25,80 @@
       color: var(--ink);
     }
 
-    /* Bløde cirkler: rød i venstre side, mørk i højre side */
-    body::before,
-    body::after {
-      content: "";
+    /* Dekorative bobler i baggrunden */
+    .bg-bubbles {
       position: fixed;
-      width: 380px;
-      height: 380px;
-      border-radius: 50%;
+      inset: 0;
       pointer-events: none;
       z-index: 0;
-      filter: blur(2px);
+      overflow: hidden;
+    }
+
+    .bubble {
+      position: absolute;
+      border-radius: 50%;
       mix-blend-mode: multiply;
+      filter: blur(1px);
     }
 
-    body::before {
+    .bubble--1 {
+      width: 360px;
+      height: 360px;
       top: -80px;
-      left: -80px;
-      background: radial-gradient(
-        circle at center,
+      left: -100px;
+      background: radial-gradient(circle at center,
         rgba(200, 16, 46, 0.55),
-        rgba(200, 16, 46, 0)
-      );
-      opacity: 0.9;
+        rgba(200, 16, 46, 0));
     }
 
-    body::after {
+    .bubble--2 {
+      width: 260px;
+      height: 260px;
+      top: 40%;
+      left: -60px;
+      background: radial-gradient(circle at center,
+        rgba(15, 23, 42, 0.45),
+        rgba(15, 23, 42, 0));
+    }
+
+    .bubble--3 {
+      width: 320px;
+      height: 320px;
       bottom: -80px;
-      right: -80px;
-      background: radial-gradient(
-        circle at center,
-        rgba(15, 23, 42, 0.55),
-        rgba(15, 23, 42, 0)
-      );
-      opacity: 0.9;
+      right: -100px;
+      background: radial-gradient(circle at center,
+        rgba(200, 16, 46, 0.5),
+        rgba(200, 16, 46, 0));
+    }
+
+    .bubble--4 {
+      width: 220px;
+      height: 220px;
+      bottom: 15%;
+      right: 5%;
+      background: radial-gradient(circle at center,
+        rgba(31, 41, 55, 0.45),
+        rgba(31, 41, 55, 0));
+    }
+
+    .bubble--5 {
+      width: 180px;
+      height: 180px;
+      top: 15%;
+      right: 30%;
+      background: radial-gradient(circle at center,
+        rgba(148, 163, 184, 0.4),
+        rgba(148, 163, 184, 0));
+    }
+
+    .bubble--6 {
+      width: 140px;
+      height: 140px;
+      bottom: 20%;
+      left: 35%;
+      background: radial-gradient(circle at center,
+        rgba(15, 23, 42, 0.35),
+        rgba(15, 23, 42, 0));
     }
 
     .page {
@@ -214,6 +253,7 @@
       font-size: 0.78rem;
       color: #4b5563;
       margin-bottom: 0;
+      text-transform: none;
     }
 
     .filters-row input[type="checkbox"] {
@@ -233,7 +273,7 @@
       max-width: 260px;
       background: #ffffff;
       border-radius: 12px;
-      border: 1px solid var(--red-border);
+      border: 1px solid #9ca3af;
       box-shadow: 0 8px 18px rgba(15, 23, 42, 0.25);
       display: none;
       overflow: hidden;
@@ -256,6 +296,7 @@
       align-items: baseline;
       margin-bottom: 10px;
       gap: 8px;
+      flex-wrap: wrap;
     }
 
     .results-header h2 {
@@ -266,8 +307,34 @@
       color: #111827;
     }
 
+    .results-tools {
+      display: inline-flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.8rem;
+      color: #4b5563;
+    }
+
+    .results-tools label {
+      margin-bottom: 0;
+      text-transform: none;
+      font-size: 0.8rem;
+      font-weight: 500;
+      letter-spacing: 0;
+    }
+
+    .results-tools select {
+      padding: 4px 8px;
+      font-size: 0.8rem;
+      border-radius: 999px;
+      border: 1px solid #d1d5db;
+      background: #ffffff;
+      color: #111827;
+    }
+
     .results-count {
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       color: #6b7280;
     }
 
@@ -321,7 +388,6 @@
       font-weight: 700;
       margin: 0 0 2px;
       font-size: 1rem;
-      text-transform: none;
     }
 
     .recipe-summary-sub {
@@ -388,11 +454,12 @@
       color: #374151;
     }
 
+    /* Servings-linje: tekst på én linje, "Skalér til" + select på næste */
     .servings-row {
       display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 8px;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 4px;
       margin-bottom: 6px;
     }
 
@@ -401,10 +468,27 @@
       color: #4b5563;
     }
 
-    .servings-row label {
-      font-size: 0.78rem;
-      font-weight: 500;
-      margin-bottom: 0;
+    .servings-scale-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px; /* større mellemrum mellem tekst og boks */
+    }
+
+    .servings-scale-row label {
+      font-size: 0.8rem;
+      font-weight: 600; /* fed skrift */
+      margin: 0;
+      text-transform: none;
+      letter-spacing: 0;
+    }
+
+    .servings-scale-row select {
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid #d1d5db;
+      background: #ffffff;
+      font-size: 0.8rem;
+      color: #111827;
     }
 
     .recipe-section-title {
@@ -451,6 +535,16 @@
   </style>
 </head>
 <body>
+  <!-- Dekorative bobler -->
+  <div class="bg-bubbles">
+    <div class="bubble bubble--1"></div>
+    <div class="bubble bubble--2"></div>
+    <div class="bubble bubble--3"></div>
+    <div class="bubble bubble--4"></div>
+    <div class="bubble bubble--5"></div>
+    <div class="bubble bubble--6"></div>
+  </div>
+
   <div class="page">
     <!-- skjult status til JS -->
     <div id="loadStatus" class="status"></div>
@@ -490,7 +584,15 @@
     <section>
       <div class="results-header">
         <h2>Forslag</h2>
-        <span class="results-count" id="resultsCount"></span>
+        <div class="results-tools">
+          <label for="sortOrder">Sortér:</label>
+          <select id="sortOrder">
+            <option value="match">Bedste match</option>
+            <option value="time-asc">Kortest tid</option>
+            <option value="time-desc">Længst tid</option>
+          </select>
+          <span class="results-count" id="resultsCount"></span>
+        </div>
       </div>
       <div id="results" class="results"></div>
       <p id="noResults" class="no-results" style="display: none">
@@ -626,10 +728,25 @@
       return count;
     }
 
+    function getTotalMinutes(recipe) {
+      if (typeof recipe.timeMinutes === "number") return recipe.timeMinutes;
+      const prep = typeof recipe.prepTimeMinutes === "number"
+        ? recipe.prepTimeMinutes
+        : null;
+      const cook = typeof recipe.cookTimeMinutes === "number"
+        ? recipe.cookTimeMinutes
+        : null;
+      if (prep != null && cook != null) return prep + cook;
+      // hvis vi ikke ved det, læg dem bagerst ved tidssortering
+      return Number.POSITIVE_INFINITY;
+    }
+
     function searchRecipes() {
       const resultsContainer = document.getElementById("results");
       const noResultsEl = document.getElementById("noResults");
       const resultsCount = document.getElementById("resultsCount");
+      const sortOrder =
+        document.getElementById("sortOrder").value || "match";
 
       if (!recipesLoaded) {
         resultsContainer.innerHTML = "";
@@ -652,20 +769,33 @@
         ? Math.max(selectedIngredients.length - 1, 1)
         : selectedIngredients.length;
 
-      const matches = allRecipes
+      let matches = allRecipes
         .map((recipe) => {
           const matchCount = matchCountForRecipe(
             recipe,
             selectedIngredients
           );
-          return { recipe, matchCount };
+          const totalMinutes = getTotalMinutes(recipe);
+          return { recipe, matchCount, totalMinutes };
         })
-        .filter((entry) => entry.matchCount >= requiredMatches)
-        .sort((a, b) => b.matchCount - a.matchCount);
+        .filter((entry) => entry.matchCount >= requiredMatches);
+
+      // Sortering
+      matches.sort((a, b) => {
+        if (sortOrder === "time-asc") {
+          return a.totalMinutes - b.totalMinutes || b.matchCount - a.matchCount;
+        } else if (sortOrder === "time-desc") {
+          return b.totalMinutes - a.totalMinutes || b.matchCount - a.matchCount;
+        } else {
+          // "match" – standard
+          return b.matchCount - a.matchCount || a.totalMinutes - b.totalMinutes;
+        }
+      });
 
       const onlyRecipes = matches.map((m) => ({
         ...m.recipe,
         _matchCount: m.matchCount,
+        _totalMinutes: m.totalMinutes,
       }));
 
       renderResults(onlyRecipes);
@@ -815,8 +945,11 @@
           "Opskriften er skrevet til " + baseServings + " personer.";
         servingsRow.appendChild(baseInfo);
 
+        const scaleRow = document.createElement("div");
+        scaleRow.className = "servings-scale-row";
+
         const selectLabel = document.createElement("label");
-        selectLabel.textContent = "Skalér til:";
+        selectLabel.textContent = "Skalér til";
 
         const servingsSelect = document.createElement("select");
         const possibleServings = [2, 4, 6, 8, 10];
@@ -831,8 +964,9 @@
           servingsSelect.appendChild(opt);
         });
 
-        selectLabel.appendChild(servingsSelect);
-        servingsRow.appendChild(selectLabel);
+        scaleRow.appendChild(selectLabel);
+        scaleRow.appendChild(servingsSelect);
+        servingsRow.appendChild(scaleRow);
         body.appendChild(servingsRow);
 
         /* TO KOLONNER: ingredienser (venstre) / fremgangsmåde (højre) */
@@ -1012,6 +1146,10 @@
 
     document
       .getElementById("allowOneMissing")
+      .addEventListener("change", searchRecipes);
+
+    document
+      .getElementById("sortOrder")
       .addEventListener("change", searchRecipes);
 
     // Luk forslag når man klikker udenfor
