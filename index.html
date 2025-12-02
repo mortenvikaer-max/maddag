@@ -41,63 +41,126 @@
       filter: blur(1px);
     }
 
+    /* store røde / mørke bobler i hjørnerne */
     .bubble--1 {
-      width: 360px;
-      height: 360px;
-      top: -80px;
-      left: -100px;
+      width: 420px;
+      height: 420px;
+      top: -120px;
+      left: -140px;
       background: radial-gradient(circle at center,
-        rgba(200, 16, 46, 0.55),
+        rgba(200, 16, 46, 0.6),
         rgba(200, 16, 46, 0));
     }
 
     .bubble--2 {
-      width: 260px;
-      height: 260px;
-      top: 40%;
-      left: -60px;
+      width: 380px;
+      height: 380px;
+      bottom: -140px;
+      right: -140px;
       background: radial-gradient(circle at center,
-        rgba(15, 23, 42, 0.45),
+        rgba(15, 23, 42, 0.6),
         rgba(15, 23, 42, 0));
     }
 
+    /* mellemstore bobler langs siderne */
     .bubble--3 {
-      width: 320px;
-      height: 320px;
-      bottom: -80px;
-      right: -100px;
+      width: 260px;
+      height: 260px;
+      top: 15%;
+      left: -60px;
       background: radial-gradient(circle at center,
-        rgba(200, 16, 46, 0.5),
-        rgba(200, 16, 46, 0));
+        rgba(30, 64, 175, 0.45),
+        rgba(30, 64, 175, 0));
     }
 
     .bubble--4 {
+      width: 240px;
+      height: 240px;
+      top: 65%;
+      left: -40px;
+      background: radial-gradient(circle at center,
+        rgba(148, 163, 184, 0.5),
+        rgba(148, 163, 184, 0));
+    }
+
+    .bubble--5 {
+      width: 260px;
+      height: 260px;
+      top: 10%;
+      right: -60px;
+      background: radial-gradient(circle at center,
+        rgba(200, 16, 46, 0.45),
+        rgba(200, 16, 46, 0));
+    }
+
+    .bubble--6 {
       width: 220px;
       height: 220px;
-      bottom: 15%;
+      bottom: 18%;
       right: 5%;
       background: radial-gradient(circle at center,
         rgba(31, 41, 55, 0.45),
         rgba(31, 41, 55, 0));
     }
 
-    .bubble--5 {
-      width: 180px;
-      height: 180px;
-      top: 15%;
+    /* mindre dekorative bobler rundt omkring */
+    .bubble--7 {
+      width: 160px;
+      height: 160px;
+      top: 32%;
       right: 30%;
       background: radial-gradient(circle at center,
-        rgba(148, 163, 184, 0.4),
+        rgba(148, 163, 184, 0.5),
         rgba(148, 163, 184, 0));
     }
 
-    .bubble--6 {
+    .bubble--8 {
       width: 140px;
       height: 140px;
-      bottom: 20%;
+      bottom: 30%;
       left: 35%;
       background: radial-gradient(circle at center,
+        rgba(30, 64, 175, 0.45),
+        rgba(30, 64, 175, 0));
+    }
+
+    .bubble--9 {
+      width: 110px;
+      height: 110px;
+      top: 8%;
+      left: 45%;
+      background: radial-gradient(circle at center,
         rgba(15, 23, 42, 0.35),
+        rgba(15, 23, 42, 0));
+    }
+
+    .bubble--10 {
+      width: 130px;
+      height: 130px;
+      bottom: 8%;
+      right: 45%;
+      background: radial-gradient(circle at center,
+        rgba(200, 16, 46, 0.4),
+        rgba(200, 16, 46, 0));
+    }
+
+    .bubble--11 {
+      width: 90px;
+      height: 90px;
+      top: 50%;
+      right: 12%;
+      background: radial-gradient(circle at center,
+        rgba(148, 163, 184, 0.6),
+        rgba(148, 163, 184, 0));
+    }
+
+    .bubble--12 {
+      width: 80px;
+      height: 80px;
+      top: 22%;
+      left: 15%;
+      background: radial-gradient(circle at center,
+        rgba(15, 23, 42, 0.5),
         rgba(15, 23, 42, 0));
     }
 
@@ -543,6 +606,12 @@
     <div class="bubble bubble--4"></div>
     <div class="bubble bubble--5"></div>
     <div class="bubble bubble--6"></div>
+    <div class="bubble bubble--7"></div>
+    <div class="bubble bubble--8"></div>
+    <div class="bubble bubble--9"></div>
+    <div class="bubble bubble--10"></div>
+    <div class="bubble bubble--11"></div>
+    <div class="bubble bubble--12"></div>
   </div>
 
   <div class="page">
