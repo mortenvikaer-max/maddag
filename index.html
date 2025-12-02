@@ -6,10 +6,10 @@
   <title>Opskriftsværktøj</title>
   <style>
     :root {
-      --red-main: #c8102e;      /* Politiken-agtig rød */
+      --red-main: #c8102e;
       --red-dark: #8f071f;
-      --red-soft: #fbeaec;      /* lys rødlig, men ikke pastel-lyserød */
-      --bg-main: #f3f4f6;       /* lys grå baggrund */
+      --red-soft: #fbeaec;
+      --bg-main: #f3f4f6;
       --ink: #111827;
 
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
@@ -25,7 +25,7 @@
       color: var(--ink);
     }
 
-    /* Dekorative bobler i baggrunden */
+    /* Dekorative bobler */
     .bg-bubbles {
       position: fixed;
       inset: 0;
@@ -555,11 +555,19 @@
       font-weight: 700;
       margin: 0 0 2px;
       font-size: 1rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
     }
 
     .recipe-summary-sub {
       font-size: 0.8rem;
       color: #6b7280;
+    }
+
+    .veg-icon {
+      font-size: 0.95rem;
+      color: #16a34a;
     }
 
     .time-block {
@@ -763,6 +771,11 @@
           <label for="typeFilter">Type:</label>
           <select id="typeFilter">
             <option value="">Alle</option>
+            <option value="gryderet">Gryderet</option>
+            <option value="ovnret">Ovnret</option>
+            <option value="suppe">Suppe</option>
+            <option value="pande">Panderet</option>
+            <option value="vegetar">Vegetarisk</option>
           </select>
           <label for="sortOrder">Sortér:</label>
           <select id="sortOrder">
@@ -775,7 +788,8 @@
       </div>
       <div id="results" class="results"></div>
       <p id="noResults" class="no-results" style="display: none">
-        Ingen opskrifter matchede med de nuværende ingredienser 🙂</p>
+        Ingen opskrifter matchede med de nuværende ingredienser 🙂
+      </p>
     </section>
   </div>
 
@@ -784,7 +798,6 @@
     let recipesLoaded = false;
     let selectedIngredients = [];
     let ingredientDictionary = new Map(); // normalized -> visningsnavn
-    let allTagsSet = new Set();
 
     const normalize = (text) =>
       text
@@ -793,6 +806,7 @@
         .toLowerCase()
         .replace(/\s+/g, " ");
 
+    /* alias-grupper (kylling/karry osv.) */
     const aliasGroups = [
       ["kylling", "kyllingebryst", "kyllingeinderfilet", "kyllingelår", "kyllingelår og overlår", "kyllingekød", "kyllingefars"],
       ["karry", "karrypulver", "karrypasta"],
@@ -818,7 +832,7 @@
     function addTokensFromString(str, set) {
       const norm = normalize(str || "");
       if (!norm) return;
-      set.add(norm); // hele strengen (fx "karrypasta")
+      set.add(norm); // hele strengen
       norm.split(/[^a-zæøå0-9]+/g)
         .filter(Boolean)
         .forEach(t => set.add(t));
@@ -990,10 +1004,25 @@
         .filter((entry) => entry.matchCount >= requiredMatches)
         .filter((entry) => {
           if (!typeFilter) return true;
-          const tags = (entry.recipe.tags || []).map((t) =>
+          const tagsLower = (entry.recipe.tags || []).map((t) =>
             t.toLowerCase()
           );
-          return tags.includes(typeFilter);
+          if (typeFilter === "vegetar") {
+            return !!entry.recipe._isVegetarian;
+          }
+          if (typeFilter === "gryderet") {
+            return tagsLower.includes("gryderet");
+          }
+          if (typeFilter === "ovnret") {
+            return tagsLower.includes("ovnret");
+          }
+          if (typeFilter === "suppe") {
+            return tagsLower.includes("suppe");
+          }
+          if (typeFilter === "pande") {
+            return tagsLower.includes("pande");
+          }
+          return true;
         });
 
       matches.sort((a, b) => {
@@ -1076,6 +1105,15 @@
         const title = document.createElement("h3");
         title.className = "recipe-title";
         title.textContent = recipe.title || "(uden titel)";
+
+        if (recipe._isVegetarian) {
+          const vegIcon = document.createElement("span");
+          vegIcon.className = "veg-icon";
+          vegIcon.textContent = "🌿";
+          vegIcon.title = "Vegetarisk opskrift";
+          title.appendChild(vegIcon);
+        }
+
         summaryMain.appendChild(title);
 
         const subtitle = document.createElement("div");
@@ -1305,6 +1343,46 @@
       suggestionsEl.style.display = "block";
     }
 
+    /* vegetar/vegan-klassifikation */
+    function classifyVeg(recipe) {
+      const meatFishWords = [
+        "oksekød","okse","svinekød","svin","flæsk","bacon","skinke","pølse",
+        "kylling","and","lam","kalv","hakket oksekød","fars",
+        "laks","torsk","tun","fisk","rejer","krebs","musling","hummer","sild"
+      ];
+      const dairyEggHoneyWords = [
+        "mælk","fløde","piskefløde","madlavningsfløde","smør","ost","feta",
+        "parmesan","cheddar","mozzarella","yoghurt","cremefraiche",
+        "skyr","æg","ægge","honning","ymer"
+      ];
+
+      let hasMeatFish = false;
+      let hasDairyEggHoney = false;
+
+      (recipe.ingredients || []).forEach((ing) => {
+        const n = normalize(ing.name || "");
+        if (!n) return;
+
+        // Hvis der både står grøntsags- og kyllingebouillon, antager vi vegetarisk mulighed
+        const skipMeatCheck =
+          n.includes("grøntsags") &&
+          (n.includes("kylling") || n.includes("okse") || n.includes("hønse"));
+
+        if (!skipMeatCheck) {
+          if (meatFishWords.some((w) => n.includes(w))) {
+            hasMeatFish = true;
+          }
+        }
+        if (dairyEggHoneyWords.some((w) => n.includes(w))) {
+          hasDairyEggHoney = true;
+        }
+      });
+
+      const isVegetarian = !hasMeatFish;
+      const isVegan = isVegetarian && !hasDairyEggHoney;
+      return { isVegetarian, isVegan };
+    }
+
     (function loadRecipes() {
       const statusEl = document.getElementById("loadStatus");
       fetch("recipes.json")
@@ -1329,25 +1407,17 @@
             (r.ingredients || []).forEach((ing) =>
               addTokensFromString(ing.name, tokenSet)
             );
-            (r.tags || []).forEach((tag) => allTagsSet.add(tag));
-            return { ...r, _tokens: Array.from(tokenSet) };
+            const veg = classifyVeg(r);
+            return {
+              ...r,
+              _tokens: Array.from(tokenSet),
+              _isVegetarian: veg.isVegetarian,
+              _isVegan: veg.isVegan,
+            };
           });
 
           recipesLoaded = true;
           buildIngredientDictionary();
-
-          // byg type-dropdown ud fra tags
-          const typeSelect = document.getElementById("typeFilter");
-          const sortedTags = Array.from(allTagsSet).sort((a, b) =>
-            a.localeCompare(b, "da")
-          );
-          sortedTags.forEach((tag) => {
-            const opt = document.createElement("option");
-            opt.value = tag;
-            opt.textContent = tag;
-            typeSelect.appendChild(opt);
-          });
-
           statusEl.textContent =
             "Indlæste " +
             allRecipes.length +
