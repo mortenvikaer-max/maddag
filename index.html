@@ -34,7 +34,6 @@
       overflow: hidden;
     }
 
-    /* grund-stil for alle bobler */
     .bubble {
       position: absolute;
       border-radius: 50%;
@@ -42,7 +41,6 @@
       filter: blur(1px);
     }
 
-    /* store røde / mørke hjørne-bobler */
     .bubble--1 {
       width: 460px;
       height: 460px;
@@ -51,7 +49,7 @@
       background: radial-gradient(circle at center,
         rgba(200, 16, 46, 0.8),
         rgba(200, 16, 46, 0));
-      opacity: 0.8; /* 80 % */
+      opacity: 0.8;
     }
 
     .bubble--2 {
@@ -62,10 +60,9 @@
       background: radial-gradient(circle at center,
         rgba(15, 23, 42, 0.8),
         rgba(15, 23, 42, 0));
-      opacity: 0.8; /* 80 % */
+      opacity: 0.8;
     }
 
-    /* mellemstore langs siderne */
     .bubble--3 {
       width: 280px;
       height: 280px;
@@ -110,7 +107,6 @@
       opacity: 0.6;
     }
 
-    /* mindre dekorative bobler rundt omkring (blandet opacitet) */
     .bubble--7 {
       width: 170px;
       height: 170px;
@@ -177,7 +173,6 @@
       opacity: 0.5;
     }
 
-    /* ekstra små/lette bobler med lav opacitet */
     .bubble--13 {
       width: 120px;
       height: 120px;
@@ -233,7 +228,6 @@
       opacity: 0.18;
     }
 
-    /* “næsten ingen opacitet” – kun en anelse farve */
     .bubble--18 {
       width: 150px;
       height: 150px;
@@ -267,14 +261,11 @@
       opacity: 0.08;
     }
 
-    /* Mindre “støj” på telefonen */
     @media (max-width: 768px) {
       .bubble {
         opacity: 0.2 !important;
         filter: blur(0.5px);
       }
-
-      /* skjul de to store hjørne-bobler på mobil */
       .bubble--1,
       .bubble--2 {
         display: none;
@@ -289,7 +280,6 @@
       padding: 24px 16px 48px;
     }
 
-    /* Status holdes skjult */
     .status {
       display: none;
     }
@@ -330,8 +320,8 @@
       font-size: 0.95rem;
       border-radius: 999px;
       border: 1px solid #d1d5db;
-      box-sizing: border-box;
       background: #ffffff;
+      box-sizing: border-box;
     }
 
     input[type="text"]:focus {
@@ -341,7 +331,6 @@
       background: #ffffff;
     }
 
-    /* Neutrale knapper til Tilføj/Find */
     button {
       display: inline-flex;
       align-items: center;
@@ -446,7 +435,6 @@
       color: #6b7280;
     }
 
-    /* Autocomplete-forslag */
     .suggestions {
       margin-top: 2px;
       margin-bottom: 6px;
@@ -539,7 +527,6 @@
       box-shadow: 0 16px 36px rgba(15, 23, 42, 0.3);
     }
 
-    /* summary som grid: titel | tidsboks | pil → tidsbokse i samme kolonne */
     .recipe-card summary {
       list-style: none;
       cursor: pointer;
@@ -581,7 +568,7 @@
       padding: 6px 10px;
       font-size: 0.75rem;
       color: var(--red-dark);
-      width: 170px;            /* fast bredde → lige kolonne */
+      width: 170px;
       border: 1px solid var(--red-main);
     }
 
@@ -634,7 +621,6 @@
       color: #374151;
     }
 
-    /* Servings-linje: tekst på én linje, "Skalér til" + select på næste */
     .servings-row {
       display: flex;
       flex-direction: column;
@@ -651,12 +637,12 @@
     .servings-scale-row {
       display: inline-flex;
       align-items: center;
-      gap: 10px; /* større mellemrum mellem tekst og boks */
+      gap: 10px;
     }
 
     .servings-scale-row label {
       font-size: 0.8rem;
-      font-weight: 600; /* fed skrift */
+      font-weight: 600;
       margin: 0;
       text-transform: none;
       letter-spacing: 0;
@@ -680,7 +666,6 @@
       letter-spacing: 0.04em;
     }
 
-    /* To kolonner: ingredienser (venstre) / fremgangsmåde (højre) */
     .recipe-columns {
       display: grid;
       grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -715,7 +700,6 @@
   </style>
 </head>
 <body>
-  <!-- Dekorative bobler -->
   <div class="bg-bubbles">
     <div class="bubble bubble--1"></div>
     <div class="bubble bubble--2"></div>
@@ -740,7 +724,6 @@
   </div>
 
   <div class="page">
-    <!-- skjult status til JS -->
     <div id="loadStatus" class="status"></div>
 
     <section class="card">
@@ -764,8 +747,6 @@
       <div id="chipsContainer" class="chips"></div>
 
       <div class="filters-row">
-        <button id="searchButton" type="button">🔍 Find opskrifter</button>
-
         <label class="inline">
           <input type="checkbox" id="allowOneMissing" />
           Tillad 1 manglende ingrediens
@@ -779,6 +760,10 @@
       <div class="results-header">
         <h2>Forslag</h2>
         <div class="results-tools">
+          <label for="typeFilter">Type:</label>
+          <select id="typeFilter">
+            <option value="">Alle</option>
+          </select>
           <label for="sortOrder">Sortér:</label>
           <select id="sortOrder">
             <option value="match">Bedste match</option>
@@ -799,6 +784,7 @@
     let recipesLoaded = false;
     let selectedIngredients = [];
     let ingredientDictionary = new Map(); // normalized -> visningsnavn
+    let allTagsSet = new Set();
 
     const normalize = (text) =>
       text
@@ -807,7 +793,6 @@
         .toLowerCase()
         .replace(/\s+/g, " ");
 
-    /* Alias-grupper: synonymer der skal matche hinanden */
     const aliasGroups = [
       ["kylling", "kyllingebryst", "kyllingeinderfilet", "kyllingelår", "kyllingelår og overlår", "kyllingekød", "kyllingefars"],
       ["karry", "karrypulver", "karrypasta"],
@@ -830,23 +815,20 @@
       return expansionMap[t] || [t];
     }
 
-    /* tokenisering til strikt match pr. opskrift */
     function addTokensFromString(str, set) {
       const norm = normalize(str || "");
       if (!norm) return;
-      set.add(norm); // hele strengen som én token (fx "karrypasta")
+      set.add(norm); // hele strengen (fx "karrypasta")
       norm.split(/[^a-zæøå0-9]+/g)
         .filter(Boolean)
-        .forEach(t => set.add(t)); // enkelte ord: "sød", "kartoffel" osv.
+        .forEach(t => set.add(t));
     }
 
     function buildIngredientDictionary() {
       ingredientDictionary.clear();
       allRecipes.forEach((recipe) => {
         (recipe.ingredientKeywords || []).forEach((kw) => {
-          let display = kw;
-          // vis "sød kartoffel" i stedet for "sødkartoffel"
-          display = display.replace(/sødkartoffel/gi, "sød kartoffel");
+          let display = kw.replace(/sødkartoffel/gi, "sød kartoffel");
           const norm = normalize(kw);
           if (!norm) return;
           if (!ingredientDictionary.has(norm)) {
@@ -920,7 +902,6 @@
       const suggestionsEl = document.getElementById("suggestions");
       const firstSuggestion = suggestionsEl.querySelector(".suggestion-item");
 
-      // Hvis der er forslag, vælg det første
       if (firstSuggestion) {
         const norm = firstSuggestion.dataset.norm;
         addIngredientFromNormalized(norm);
@@ -941,10 +922,6 @@
       hideSuggestions();
     }
 
-    /* NY match-funktion:
-       - bruger recipe._tokens (stramme tokens)
-       - en ingrediens matcher kun hvis EN af dens aliaser findes i tokens
-    */
     function matchCountForRecipe(recipe, ingredients) {
       const tokens = recipe._tokens || [];
       const total = ingredients.length;
@@ -979,6 +956,8 @@
       const resultsCount = document.getElementById("resultsCount");
       const sortOrder =
         document.getElementById("sortOrder").value || "match";
+      const typeFilter =
+        (document.getElementById("typeFilter").value || "").toLowerCase();
 
       if (!recipesLoaded) {
         resultsContainer.innerHTML = "";
@@ -1008,9 +987,15 @@
           const totalMinutes = getTotalMinutes(recipe);
           return { recipe, matchCount, totalMinutes };
         })
-        .filter((entry) => entry.matchCount >= requiredMatches);
+        .filter((entry) => entry.matchCount >= requiredMatches)
+        .filter((entry) => {
+          if (!typeFilter) return true;
+          const tags = (entry.recipe.tags || []).map((t) =>
+            t.toLowerCase()
+          );
+          return tags.includes(typeFilter);
+        });
 
-      // sortering
       matches.sort((a, b) => {
         if (sortOrder === "time-asc") {
           return (
@@ -1021,7 +1006,6 @@
             b.totalMinutes - a.totalMinutes || b.matchCount - a.matchCount
           );
         } else {
-          // bedste match
           return (
             b.matchCount - a.matchCount || a.totalMinutes - b.totalMinutes
           );
@@ -1037,7 +1021,6 @@
       renderResults(onlyRecipes);
     }
 
-    // Skaler mængder ved at gange første tal i strengen
     function scaleAmount(amount, factor) {
       if (!amount || typeof amount !== "string" || factor === 1) {
         return amount || "";
@@ -1205,7 +1188,6 @@
         servingsRow.appendChild(scaleRow);
         body.appendChild(servingsRow);
 
-        /* TO KOLONNER: ingredienser (venstre) / fremgangsmåde (højre) */
         const columns = document.createElement("div");
         columns.className = "recipe-columns";
 
@@ -1236,7 +1218,10 @@
             const li = document.createElement("li");
             const amountText = scaleAmount(ing.amount || "", factor);
             const amountPart = amountText ? amountText + " " : "";
-            const nameFixed = (ing.name || "").replace(/sødkartoffel/gi, "sød kartoffel");
+            const nameFixed = (ing.name || "").replace(
+              /sødkartoffel/gi,
+              "sød kartoffel"
+            );
             li.textContent = amountPart + nameFixed;
             ingredientsList.appendChild(li);
           });
@@ -1279,7 +1264,6 @@
       });
     }
 
-    // Autocomplete-søgning i ingrediens-ordbog
     function updateSuggestions() {
       const input = document.getElementById("ingredientInput");
       const suggestionsEl = document.getElementById("suggestions");
@@ -1321,7 +1305,6 @@
       suggestionsEl.style.display = "block";
     }
 
-    // Indlæs recipes.json og byg tokens + ordbog
     (function loadRecipes() {
       const statusEl = document.getElementById("loadStatus");
       fetch("recipes.json")
@@ -1346,11 +1329,25 @@
             (r.ingredients || []).forEach((ing) =>
               addTokensFromString(ing.name, tokenSet)
             );
+            (r.tags || []).forEach((tag) => allTagsSet.add(tag));
             return { ...r, _tokens: Array.from(tokenSet) };
           });
 
           recipesLoaded = true;
           buildIngredientDictionary();
+
+          // byg type-dropdown ud fra tags
+          const typeSelect = document.getElementById("typeFilter");
+          const sortedTags = Array.from(allTagsSet).sort((a, b) =>
+            a.localeCompare(b, "da")
+          );
+          sortedTags.forEach((tag) => {
+            const opt = document.createElement("option");
+            opt.value = tag;
+            opt.textContent = tag;
+            typeSelect.appendChild(opt);
+          });
+
           statusEl.textContent =
             "Indlæste " +
             allRecipes.length +
@@ -1366,7 +1363,6 @@
         });
     })();
 
-    // Event listeners
     document
       .getElementById("addIngredientButton")
       .addEventListener("click", addIngredient);
@@ -1389,10 +1385,6 @@
       .addEventListener("click", clearIngredients);
 
     document
-      .getElementById("searchButton")
-      .addEventListener("click", searchRecipes);
-
-    document
       .getElementById("allowOneMissing")
       .addEventListener("change", searchRecipes);
 
@@ -1400,7 +1392,10 @@
       .getElementById("sortOrder")
       .addEventListener("change", searchRecipes);
 
-    // Luk forslag når man klikker udenfor
+    document
+      .getElementById("typeFilter")
+      .addEventListener("change", searchRecipes);
+
     document.addEventListener("click", (e) => {
       const s = document.getElementById("suggestions");
       const input = document.getElementById("ingredientInput");
@@ -1409,7 +1404,6 @@
       }
     });
 
-    // Første render
     renderIngredientChips();
   </script>
 </body>
