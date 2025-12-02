@@ -705,6 +705,16 @@
       color: #6b7280;
       margin-top: 8px;
     }
+
+    /* Random forslag overskrift */
+    .random-label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #4b5563;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
   </style>
 </head>
 <body>
@@ -786,7 +796,13 @@
           <span class="results-count" id="resultsCount"></span>
         </div>
       </div>
+
+      <!-- Har du prøvet...? random forslag -->
+      <div id="randomSuggestion" class="results"></div>
+
+      <!-- Søgte resultater -->
       <div id="results" class="results"></div>
+
       <p id="noResults" class="no-results" style="display: none">
         Ingen opskrifter matchede med de nuværende ingredienser 🙂
       </p>
@@ -934,6 +950,7 @@
       renderIngredientChips();
       renderResults([]);
       hideSuggestions();
+      renderRandomSuggestion();
     }
 
     function matchCountForRecipe(recipe, ingredients) {
@@ -972,6 +989,9 @@
         document.getElementById("sortOrder").value || "match";
       const typeFilter =
         (document.getElementById("typeFilter").value || "").toLowerCase();
+
+      // håndtér random forslag (skjul hvis der er valgte ingredienser)
+      renderRandomSuggestion();
 
       if (!recipesLoaded) {
         resultsContainer.innerHTML = "";
@@ -1071,6 +1091,240 @@
       return numStr + match[2];
     }
 
+    /* fælles funktion til at skabe et recipe-card */
+    function createRecipeCard(recipe) {
+      const card = document.createElement("details");
+      card.className = "recipe-card";
+
+      const summary = document.createElement("summary");
+
+      const summaryMain = document.createElement("div");
+      summaryMain.className = "recipe-summary-main";
+
+      const title = document.createElement("h3");
+      title.className = "recipe-title";
+      title.textContent = recipe.title || "(uden titel)";
+
+      if (recipe._isVegetarian) {
+        const vegIcon = document.createElement("span");
+        vegIcon.className = "veg-icon";
+        vegIcon.textContent = "🌿";
+        vegIcon.title = "Vegetarisk opskrift";
+        title.appendChild(vegIcon);
+      }
+
+      summaryMain.appendChild(title);
+
+      const subtitle = document.createElement("div");
+      subtitle.className = "recipe-summary-sub";
+      const servings =
+        typeof recipe.servings === "number"
+          ? recipe.servings + " pers."
+          : recipe.servings || "";
+      subtitle.textContent = servings ? "Opskrift til " + servings : "";
+      summaryMain.appendChild(subtitle);
+
+      const timeBlock = document.createElement("div");
+      timeBlock.className = "time-block";
+
+      const prep = recipe.prepTime || "–";
+      const cook = recipe.cookTime || "–";
+      let total = recipe.time;
+      if (
+        !total &&
+        typeof recipe.prepTimeMinutes === "number" &&
+        typeof recipe.cookTimeMinutes === "number"
+      ) {
+        const totalMin = recipe.prepTimeMinutes + recipe.cookTimeMinutes;
+        total = totalMin + " min";
+      }
+      total = total || "–";
+
+      function addTimeLine(label, value) {
+        const line = document.createElement("div");
+        line.className = "time-line";
+        const l = document.createElement("span");
+        l.className = "time-label";
+        l.textContent = label;
+        const v = document.createElement("span");
+        v.className = "time-value";
+        v.textContent = value;
+        line.appendChild(l);
+        line.appendChild(v);
+        timeBlock.appendChild(line);
+      }
+
+      addTimeLine("Forberedelse", prep);
+      addTimeLine("Tilberedning", cook);
+      addTimeLine("I alt", total);
+
+      const arrow = document.createElement("span");
+      arrow.className = "summary-arrow";
+      arrow.textContent = "▾";
+
+      summary.appendChild(summaryMain);
+      summary.appendChild(timeBlock);
+      summary.appendChild(arrow);
+
+      card.appendChild(summary);
+
+      card.addEventListener("toggle", () => {
+        arrow.textContent = card.open ? "▴" : "▾";
+      });
+
+      const body = document.createElement("div");
+      body.className = "recipe-body";
+
+      if ((recipe.tags || []).length > 0) {
+        const tagsEl = document.createElement("div");
+        tagsEl.className = "tags";
+        (recipe.tags || []).forEach((tag) => {
+          const span = document.createElement("span");
+          span.className = "tag";
+          span.textContent = tag;
+          tagsEl.appendChild(span);
+        });
+        body.appendChild(tagsEl);
+      }
+
+      const baseServings =
+        typeof recipe.servings === "number" ? recipe.servings : 4;
+      const baseIngredients = (recipe.ingredients || []).map((ing) => ({
+        ...ing,
+      }));
+
+      const servingsRow = document.createElement("div");
+      servingsRow.className = "servings-row";
+
+      const baseInfo = document.createElement("span");
+      baseInfo.textContent =
+        "Opskriften er skrevet til " + baseServings + " personer.";
+      servingsRow.appendChild(baseInfo);
+
+      const scaleRow = document.createElement("div");
+      scaleRow.className = "servings-scale-row";
+
+      const selectLabel = document.createElement("label");
+      selectLabel.textContent = "Skalér til";
+
+      const servingsSelect = document.createElement("select");
+      const possibleServings = [2, 4, 6, 8, 10];
+      if (!possibleServings.includes(baseServings)) {
+        possibleServings.unshift(baseServings);
+      }
+      possibleServings.forEach((val) => {
+        const opt = document.createElement("option");
+        opt.value = val;
+        opt.textContent = val + " pers.";
+        if (val === baseServings) opt.selected = true;
+        servingsSelect.appendChild(opt);
+      });
+
+      scaleRow.appendChild(selectLabel);
+      scaleRow.appendChild(servingsSelect);
+      servingsRow.appendChild(scaleRow);
+      body.appendChild(servingsRow);
+
+      const columns = document.createElement("div");
+      columns.className = "recipe-columns";
+
+      const leftCol = document.createElement("div");
+      const rightCol = document.createElement("div");
+
+      const ingredientsTitle = document.createElement("div");
+      ingredientsTitle.className = "recipe-section-title";
+      ingredientsTitle.textContent = "Ingredienser";
+      leftCol.appendChild(ingredientsTitle);
+
+      const ingredientsList = document.createElement("ul");
+      ingredientsList.className = "recipe-ingredients";
+      leftCol.appendChild(ingredientsList);
+
+      function updateIngredientsList() {
+        ingredientsList.innerHTML = "";
+        const desiredServings = parseInt(
+          servingsSelect.value || baseServings,
+          10
+        );
+        const factor =
+          desiredServings && baseServings
+            ? desiredServings / baseServings
+            : 1;
+
+        baseIngredients.forEach((ing) => {
+          const li = document.createElement("li");
+          const amountText = scaleAmount(ing.amount || "", factor);
+          const amountPart = amountText ? amountText + " " : "";
+          const nameFixed = (ing.name || "").replace(
+            /sødkartoffel/gi,
+            "sød kartoffel"
+          );
+          li.textContent = amountPart + nameFixed;
+          ingredientsList.appendChild(li);
+        });
+      }
+
+      servingsSelect.addEventListener("change", updateIngredientsList);
+      updateIngredientsList();
+
+      const instructionsTitle = document.createElement("div");
+      instructionsTitle.className = "recipe-section-title";
+      instructionsTitle.textContent = "Fremgangsmåde";
+      rightCol.appendChild(instructionsTitle);
+
+      const instructionsList = document.createElement("ol");
+      instructionsList.className = "recipe-instructions";
+      (recipe.instructions || []).forEach((step) => {
+        const li = document.createElement("li");
+        li.textContent = step;
+        instructionsList.appendChild(li);
+      });
+      rightCol.appendChild(instructionsList);
+
+      columns.appendChild(leftCol);
+      columns.appendChild(rightCol);
+      body.appendChild(columns);
+
+      if (recipe.notes) {
+        const notesTitle = document.createElement("div");
+        notesTitle.className = "recipe-section-title";
+        notesTitle.textContent = "Noter";
+        const notesP = document.createElement("p");
+        notesP.className = "small";
+        notesP.textContent = recipe.notes;
+        body.appendChild(notesTitle);
+        body.appendChild(notesP);
+      }
+
+      card.appendChild(body);
+      return card;
+    }
+
+    /* random "Har du prøvet...?" */
+    function renderRandomSuggestion() {
+      const container = document.getElementById("randomSuggestion");
+      if (!recipesLoaded || !allRecipes.length || selectedIngredients.length > 0) {
+        container.innerHTML = "";
+        container.style.display = "none";
+        return;
+      }
+
+      container.style.display = "block";
+      container.innerHTML = "";
+
+      const randomIndex = Math.floor(Math.random() * allRecipes.length);
+      const randomRecipe = allRecipes[randomIndex];
+
+      const label = document.createElement("div");
+      label.className = "random-label";
+      label.textContent = "Har du prøvet...?";
+
+      const card = createRecipeCard(randomRecipe);
+
+      container.appendChild(label);
+      container.appendChild(card);
+    }
+
     function renderResults(recipes) {
       const resultsContainer = document.getElementById("results");
       const noResultsEl = document.getElementById("noResults");
@@ -1094,210 +1348,7 @@
           : recipes.length + " resultater";
 
       recipes.forEach((recipe) => {
-        const card = document.createElement("details");
-        card.className = "recipe-card";
-
-        const summary = document.createElement("summary");
-
-        const summaryMain = document.createElement("div");
-        summaryMain.className = "recipe-summary-main";
-
-        const title = document.createElement("h3");
-        title.className = "recipe-title";
-        title.textContent = recipe.title || "(uden titel)";
-
-        if (recipe._isVegetarian) {
-          const vegIcon = document.createElement("span");
-          vegIcon.className = "veg-icon";
-          vegIcon.textContent = "🌿";
-          vegIcon.title = "Vegetarisk opskrift";
-          title.appendChild(vegIcon);
-        }
-
-        summaryMain.appendChild(title);
-
-        const subtitle = document.createElement("div");
-        subtitle.className = "recipe-summary-sub";
-        const servings =
-          typeof recipe.servings === "number"
-            ? recipe.servings + " pers."
-            : recipe.servings || "";
-        subtitle.textContent = servings ? "Opskrift til " + servings : "";
-        summaryMain.appendChild(subtitle);
-
-        const timeBlock = document.createElement("div");
-        timeBlock.className = "time-block";
-
-        const prep = recipe.prepTime || "–";
-        const cook = recipe.cookTime || "–";
-        let total = recipe.time;
-        if (
-          !total &&
-          typeof recipe.prepTimeMinutes === "number" &&
-          typeof recipe.cookTimeMinutes === "number"
-        ) {
-          const totalMin = recipe.prepTimeMinutes + recipe.cookTimeMinutes;
-          total = totalMin + " min";
-        }
-        total = total || "–";
-
-        function addTimeLine(label, value) {
-          const line = document.createElement("div");
-          line.className = "time-line";
-          const l = document.createElement("span");
-          l.className = "time-label";
-          l.textContent = label;
-          const v = document.createElement("span");
-          v.className = "time-value";
-          v.textContent = value;
-          line.appendChild(l);
-          line.appendChild(v);
-          timeBlock.appendChild(line);
-        }
-
-        addTimeLine("Forberedelse", prep);
-        addTimeLine("Tilberedning", cook);
-        addTimeLine("I alt", total);
-
-        const arrow = document.createElement("span");
-        arrow.className = "summary-arrow";
-        arrow.textContent = "▾";
-
-        summary.appendChild(summaryMain);
-        summary.appendChild(timeBlock);
-        summary.appendChild(arrow);
-
-        card.appendChild(summary);
-
-        card.addEventListener("toggle", () => {
-          arrow.textContent = card.open ? "▴" : "▾";
-        });
-
-        const body = document.createElement("div");
-        body.className = "recipe-body";
-
-        if ((recipe.tags || []).length > 0) {
-          const tagsEl = document.createElement("div");
-          tagsEl.className = "tags";
-          (recipe.tags || []).forEach((tag) => {
-            const span = document.createElement("span");
-            span.className = "tag";
-            span.textContent = tag;
-            tagsEl.appendChild(span);
-          });
-          body.appendChild(tagsEl);
-        }
-
-        const baseServings =
-          typeof recipe.servings === "number" ? recipe.servings : 4;
-        const baseIngredients = (recipe.ingredients || []).map((ing) => ({
-          ...ing,
-        }));
-
-        const servingsRow = document.createElement("div");
-        servingsRow.className = "servings-row";
-
-        const baseInfo = document.createElement("span");
-        baseInfo.textContent =
-          "Opskriften er skrevet til " + baseServings + " personer.";
-        servingsRow.appendChild(baseInfo);
-
-        const scaleRow = document.createElement("div");
-        scaleRow.className = "servings-scale-row";
-
-        const selectLabel = document.createElement("label");
-        selectLabel.textContent = "Skalér til";
-
-        const servingsSelect = document.createElement("select");
-        const possibleServings = [2, 4, 6, 8, 10];
-        if (!possibleServings.includes(baseServings)) {
-          possibleServings.unshift(baseServings);
-        }
-        possibleServings.forEach((val) => {
-          const opt = document.createElement("option");
-          opt.value = val;
-          opt.textContent = val + " pers.";
-          if (val === baseServings) opt.selected = true;
-          servingsSelect.appendChild(opt);
-        });
-
-        scaleRow.appendChild(selectLabel);
-        scaleRow.appendChild(servingsSelect);
-        servingsRow.appendChild(scaleRow);
-        body.appendChild(servingsRow);
-
-        const columns = document.createElement("div");
-        columns.className = "recipe-columns";
-
-        const leftCol = document.createElement("div");
-        const rightCol = document.createElement("div");
-
-        const ingredientsTitle = document.createElement("div");
-        ingredientsTitle.className = "recipe-section-title";
-        ingredientsTitle.textContent = "Ingredienser";
-        leftCol.appendChild(ingredientsTitle);
-
-        const ingredientsList = document.createElement("ul");
-        ingredientsList.className = "recipe-ingredients";
-        leftCol.appendChild(ingredientsList);
-
-        function updateIngredientsList() {
-          ingredientsList.innerHTML = "";
-          const desiredServings = parseInt(
-            servingsSelect.value || baseServings,
-            10
-          );
-          const factor =
-            desiredServings && baseServings
-              ? desiredServings / baseServings
-              : 1;
-
-          baseIngredients.forEach((ing) => {
-            const li = document.createElement("li");
-            const amountText = scaleAmount(ing.amount || "", factor);
-            const amountPart = amountText ? amountText + " " : "";
-            const nameFixed = (ing.name || "").replace(
-              /sødkartoffel/gi,
-              "sød kartoffel"
-            );
-            li.textContent = amountPart + nameFixed;
-            ingredientsList.appendChild(li);
-          });
-        }
-
-        servingsSelect.addEventListener("change", updateIngredientsList);
-        updateIngredientsList();
-
-        const instructionsTitle = document.createElement("div");
-        instructionsTitle.className = "recipe-section-title";
-        instructionsTitle.textContent = "Fremgangsmåde";
-        rightCol.appendChild(instructionsTitle);
-
-        const instructionsList = document.createElement("ol");
-        instructionsList.className = "recipe-instructions";
-        (recipe.instructions || []).forEach((step) => {
-          const li = document.createElement("li");
-          li.textContent = step;
-          instructionsList.appendChild(li);
-        });
-        rightCol.appendChild(instructionsList);
-
-        columns.appendChild(leftCol);
-        columns.appendChild(rightCol);
-        body.appendChild(columns);
-
-        if (recipe.notes) {
-          const notesTitle = document.createElement("div");
-          notesTitle.className = "recipe-section-title";
-          notesTitle.textContent = "Noter";
-          const notesP = document.createElement("p");
-          notesP.className = "small";
-          notesP.textContent = recipe.notes;
-          body.appendChild(notesTitle);
-          body.appendChild(notesP);
-        }
-
-        card.appendChild(body);
+        const card = createRecipeCard(recipe);
         resultsContainer.appendChild(card);
       });
     }
@@ -1363,7 +1414,6 @@
         const n = normalize(ing.name || "");
         if (!n) return;
 
-        // Hvis der både står grøntsags- og kyllingebouillon, antager vi vegetarisk mulighed
         const skipMeatCheck =
           n.includes("grøntsags") &&
           (n.includes("kylling") || n.includes("okse") || n.includes("hønse"));
@@ -1424,6 +1474,9 @@
             (allRecipes.length === 1
               ? " opskrift."
               : " opskrifter.");
+
+          // vis første random forslag
+          renderRandomSuggestion();
         })
         .catch((err) => {
           console.error(err);
